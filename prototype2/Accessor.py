@@ -53,6 +53,7 @@ class Accessor:
             '''
         )
 
+        self.conn.commit()
     def GetClassificationsData(self,userid):
         #Returns a list of Row Data for Classifications (Needs cleaning)
         #Get all of the Classifications that have the same userid as the provided userid
@@ -71,9 +72,7 @@ class Accessor:
             #Check if classification exists
             self.c.execute('''
                 SELECT * FROM classifications
-                WHERE
-                    userid = ?,
-                    id = ?
+                WHERE (userid = ? AND id = ?);
                 ''', (userid, cl.id, )
             )
 
@@ -81,13 +80,8 @@ class Accessor:
                 #if classification exists in table
                 self.c.execute('''
                     UPDATE classifications
-                    SET
-                        name = ?,
-                        color = ?,
-                        count = ?,
-                    WHERE
-                        id = ?,
-                        userid = ?
+                    SET name = ?, color = ?, count = ?
+                    WHERE (id = ? AND userid = ?);
                     ''', (cl.name, cl.color, cl.count, cl.id, userid,  )
                 )
 
@@ -118,9 +112,7 @@ class Accessor:
             #Check if edge exists
             self.c.execute('''
                 SELECT * FROM edges
-                WHERE
-                    userid = ?,
-                    id = ?
+                WHERE (userid = ? AND id = ?)
                 ''', (userid, edge.id, )
             )
 
@@ -128,16 +120,9 @@ class Accessor:
                 #if edge exists in table
                 self.c.execute('''
                     UPDATE edges
-                    SET
-                        vertex1 = ?,
-                        vertex2 = ?,
-                        color = ?,
-                        size = ?,
-                        style = ?
-                    WHERE
-                        id = ?,
-                        userid = ?
-                    ''', (edge.vertices[0], edge.vertices[1], edge.color, edge.size, edge.style, edge.id, userid,  )
+                    SET vertex1 = ?, vertex2 = ?, color = ?, size = ?, style = ?
+                    WHERE (id = ? AND userid = ?)
+                    ''', (edge.vertices[0].name, edge.vertices[1].name, edge.color, edge.size, edge.style, edge.id, userid,  )
                 )
 
             else:
@@ -145,7 +130,7 @@ class Accessor:
                 self.c.execute('''
                     INSERT INTO edges (userid, vertex1, vertex2, color, size, style)
                     VALUES (?, ?, ?, ?, ?, ?)
-                    ''', (userid, edge.vertices[0], edge.vertices[1], edge.color, edge.size, edge.style)
+                    ''', (userid, edge.vertices[0].name, edge.vertices[1].name, edge.color, edge.size, edge.style)
                 )
         self.conn.commit()
 
@@ -168,9 +153,7 @@ class Accessor:
             #Check if vertex exists
             self.c.execute('''
                 SELECT * FROM nodes
-                WHERE
-                    userid = ?,
-                    id = ?
+                WHERE (userid = ? AND id = ?)
                 ''', (userid, v.id, )
             )
 
@@ -178,15 +161,8 @@ class Accessor:
                 #if vertex exists in table
                 self.c.execute('''
                     UPDATE nodes
-                    SET
-                        name = ?
-                        classification = ?
-                        health = ?
-                        shape = ?
-                        notes = ?
-                    WHERE
-                        id = ?,
-                        userid = ?
+                    SET name = ?, classification = ?, health = ?, shape = ?, notes = ?
+                    WHERE (id = ? AND userid = ?)
                     ''', (v.name, v.type.name, v.health, v.shape, v.notes, v.id, userid, )
                 )
 
@@ -213,4 +189,10 @@ class Accessor:
 
     def SetUserData(self,graph,userid):
         #update the usersettings data for the given userid based on the inputted settings
-        print("TODO")
+        print("TODO: SetUserData()")
+
+    def SetAllData(self,graph,userid):
+        self.SetClassificationsData(graph,userid)
+        self.SetEdgesData(graph,userid)
+        self.SetVerticesData(graph,userid)
+        self.SetUserData(graph,userid)

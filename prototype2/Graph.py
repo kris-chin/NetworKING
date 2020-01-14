@@ -74,7 +74,7 @@ class Graph:
         return "Vertices: " + str(vertex_strings) + "\nEdges: " + str(edge_strings)
 
     def AddEdge(self, edge): self.edges.append(edge)
-    def AddVertex(self, vertex): self.vertices.append(vertex)
+    def AddVertex(self, vertex): self.vertices.aappend(vertex)
 
     #Returns the Vertex Object of matching name string
     def GetVertex(self, vertex_name):
