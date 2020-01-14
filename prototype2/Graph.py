@@ -2,13 +2,19 @@ class Classification:
     def __init__(self, name, color):
         self.name = name #STRING
         self.color = color #STRING
+        self.count = 0 #INT
     def __str__(self):
         return self.name
+    def IncrementCount(self):
+        self.count += 1
 
 class Vertex:
     def __init__(self, name, type, health, shape = 'o', notes = 'None'):
         self.name = name #STRING
+
         self.type = type #CLASSIFICATION OBJECT
+        self.type.IncrementCount() #increase classifcation count
+
         self.health = health #INT
         self.shape = shape #CHAR
         self.notes = notes #STRING
@@ -54,9 +60,10 @@ class Edge:
         self.style = newEdge.style
 
 class Graph:
-    def __init__(self, vertices, edges):
+    def __init__(self, vertices, edges, classifications):
         self.vertices = vertices #LIST OF VERTEX OBJECTS
         self.edges = edges #LIST OF EDGE OBJECTS
+        self.classifications = classifications #LIST OF CLASSIFICATION OBJECTS
 
     def __str__(self):
         vertex_strings = list(str(Vertex) for Vertex in self.vertices)
@@ -78,6 +85,8 @@ class Graph:
         return self.vertices
     def GetEdges(self):
         return self.edges
+    def GetClassifications(self):
+        return self.classifications
             
     #Returns a list of all neighboring Vertices
     def GetNeighbors(self,vertex):
