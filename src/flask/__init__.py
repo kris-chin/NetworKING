@@ -1,5 +1,5 @@
-#TODO: add DB Access from the prototype (needs to be drawn a bit)
 from flask import Flask
+from .model import *
 
 app = Flask(__name__) #our app is a new Flask instance
 
