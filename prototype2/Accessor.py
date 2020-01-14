@@ -1,21 +1,13 @@
 import sqlite3
-
-class SQLITE:
-    def ConnectCursor(self,database): #returns a tuple of a SQLITE connection and it's cursor
-        conn = sqlite3.connect(database)
-        return (conn,conn.cursor)
-    
-
 #The Accessor Object access the DB for Graph Information for a user id.
 #It returns the collected information in the form of our Python Objects that we created.
 class Accessor:
 
-    def __init__(self, type_of_access, database):
+    def __init__(self, database):
 
         #connect to database with a given connection. c is cursor.
-        connection = type_of_access.ConnectCursor(database)
-        self.conn = connection[0]
-        self.c = connection[1]
+        self.conn = sqlite3.connect(database)
+        self.c = self.conn.cursor()
 
         #create tables if they do not exist in given database
 
@@ -45,16 +37,17 @@ class Accessor:
         #Create "classifications" table
         self.c.execute('''
             CREATE TABLE IF NOT EXISTS classifications
-                (id INTEGER NOT FULL PRIMARY KEY,
+                (id INTEGER NOT NULL PRIMARY KEY,
                 userid INTEGER,
                 name TEXT,
                 color TEXT,
                 count INTEGER)
             ''')
+        
         #Create "usersettings" table
         self.c.execute('''
             CREATE TABLE IF NOT EXISTS usersettings
-                (id INTEGER NOT FULL PRIMARY KEY,
+                (id INTEGER NOT NULL PRIMARY KEY,
                 userid INTEGER,
                 darkmode BIT)
             '''
