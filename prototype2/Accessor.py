@@ -34,9 +34,10 @@ class Accessor:
         #Create "edges" table
         self.c.execute('''
             CREATE TABLE IF NOT EXISTS edges
-                (userid INTEGER,
-                node1 TEXT,
-                node2 TEXT,
+                (id INTEGER NOT NULL PRIMARY KEY,
+                userid INTEGER,
+                vertex1 TEXT,
+                vertex2 TEXT,
                 color TEXT,
                 size INTEGER,
                 style TEXT)
@@ -44,7 +45,8 @@ class Accessor:
         #Create "classifications" table
         self.c.execute('''
             CREATE TABLE IF NOT EXISTS classifications
-                (userid INTEGER,
+                (id INTEGER NOT FULL PRIMARY KEY,
+                userid INTEGER,
                 name TEXT,
                 color TEXT,
                 count INTEGER)
@@ -52,24 +54,170 @@ class Accessor:
         #Create "usersettings" table
         self.c.execute('''
             CREATE TABLE IF NOT EXISTS usersettings
-                (userid INTEGER,
+                (id INTEGER NOT FULL PRIMARY KEY,
+                userid INTEGER,
                 darkmode BIT)
-        ''')
+            '''
+        )
 
     def GetClassificationsData(self,userid):
-        print("TODO")
+        #Returns a list of Row Data for Classifications (Needs cleaning)
+        #Get all of the Classifications that have the same userid as the provided userid
+        self.c.execute('''
+            SELECT *  FROM classifications
+            WHERE userid = ?;
+            ''', (userid, )
+        )
 
-    def SetClassificationsData(self,userid):
-        print("TODO")
+        #return the query results
+        return self.c.fetchall()
+
+    def SetClassificationsData(self,graph,userid):
+        #update the classifcation data for the given userid based on the inputted graph object
+        for cl in graph.classifications:
+            #Check if classification exists
+            self.c.execute('''
+                SELECT * FROM classifications
+                WHERE
+                    userid = ?,
+                    id = ?
+                ''', (userid, cl.id, )
+            )
+
+            if self.c.fetchone() != None: 
+                #if classification exists in table
+                self.c.execute('''
+                    UPDATE classifications
+                    SET
+                        name = ?,
+                        color = ?,
+                        count = ?,
+                    WHERE
+                        id = ?,
+                        userid = ?
+                    ''', (cl.name, cl.color, cl.count, cl.id, userid,  )
+                )
+
+            else:
+                #if classification doesn't exist in table
+                self.c.execute('''
+                    INSERT INTO classifications (userid, name, color, count)
+                    VALUES (?, ?, ?, ?)
+                    ''', (userid, cl.name, cl.color, cl.count, )
+                )
+        self.conn.commit()
 
     def GetEdgesData(self,userid):
-        print("TODO")
+        #Returns a list of Row data for Edges (Needs cleaning)
+        #Get all of the Edges that have the same userid as the provided userid
+        self.c.execute('''
+            SELECT *  FROM edges
+            WHERE userid = ?;
+            ''', (userid, )
+            )
 
-    def SetEdgesData(self,userid):
-        print("TODO")
+        #return the query results
+        return self.c.fetchall()
+
+    def SetEdgesData(self,graph,userid):
+        #update the edges data for the given userid based on the inputted graph object
+        for edge in graph.edges:
+            #Check if edge exists
+            self.c.execute('''
+                SELECT * FROM edges
+                WHERE
+                    userid = ?,
+                    id = ?
+                ''', (userid, edge.id, )
+            )
+
+            if self.c.fetchone() != None: 
+                #if edge exists in table
+                self.c.execute('''
+                    UPDATE edges
+                    SET
+                        vertex1 = ?,
+                        vertex2 = ?,
+                        color = ?,
+                        size = ?,
+                        style = ?
+                    WHERE
+                        id = ?,
+                        userid = ?
+                    ''', (edge.vertices[0], edge.vertices[1], edge.color, edge.size, edge.style, edge.id, userid,  )
+                )
+
+            else:
+                #if edges doesn't exist in table
+                self.c.execute('''
+                    INSERT INTO edges (userid, vertex1, vertex2, color, size, style)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ''', (userid, edge.vertices[0], edge.vertices[1], edge.color, edge.size, edge.style)
+                )
+        self.conn.commit()
 
     def GetVerticesData(self,userid):
-        print("TODO")
+        #Returns a list of Row data for Vertices (Needs cleaning)
+        #Get all of the Nodes that have the same userid as the provided userid
+        self.c.execute('''
+            SELECT *  FROM nodes
+            WHERE userid = ?;
+            ''', (userid, )
+            )
 
-    def SetVerticesData(self,userid):
+        #return the query results
+        return self.c.fetchall()
+
+
+    def SetVerticesData(self,graph,userid):
+        #update the vertices data for the given userid based on the inputted graph object
+        for v in graph.vertices:
+            #Check if vertex exists
+            self.c.execute('''
+                SELECT * FROM nodes
+                WHERE
+                    userid = ?,
+                    id = ?
+                ''', (userid, v.id, )
+            )
+
+            if self.c.fetchone() != None: 
+                #if vertex exists in table
+                self.c.execute('''
+                    UPDATE nodes
+                    SET
+                        name = ?
+                        classification = ?
+                        health = ?
+                        shape = ?
+                        notes = ?
+                    WHERE
+                        id = ?,
+                        userid = ?
+                    ''', (v.name, v.type.name, v.health, v.shape, v.notes, v.id, userid, )
+                )
+
+            else:
+                #if vertex doesn't exist in table
+                self.c.execute('''
+                    INSERT INTO nodes (userid, name, classification, health, shape, notes)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ''', (userid, v.name, v.type.name, v.health, v.shape, v.notes, )
+                )
+        self.conn.commit()
+
+    def GetUserData(self,userid):
+        #Returns a list of Row data for User Settings (Needs cleaning)
+        #Get all of the Settings that have the same userid as the provided userid
+        self.c.execute('''
+            SELECT *  FROM usersettings
+            WHERE userid = ?;
+            ''', (userid, )
+            )
+
+        #return the query results
+        return self.c.fetchall()
+
+    def SetUserData(self,graph,userid):
+        #update the usersettings data for the given userid based on the inputted settings
         print("TODO")

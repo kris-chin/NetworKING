@@ -1,5 +1,6 @@
 class Classification:
-    def __init__(self, name, color):
+    def __init__(self, id, name, color):
+        self.id = id #INT
         self.name = name #STRING
         self.color = color #STRING
         self.count = 0 #INT
@@ -9,7 +10,8 @@ class Classification:
         self.count += 1
 
 class Vertex:
-    def __init__(self, name, type, health, shape = 'o', notes = 'None'):
+    def __init__(self, id, name, type, health, shape = 'o', notes = 'None'):
+        self.id = id #INT
         self.name = name #STRING
 
         self.type = type #CLASSIFICATION OBJECT
@@ -40,7 +42,8 @@ class Vertex:
             print("Notes: " + self.notes)
 
 class Edge:
-    def __init__(self, vertices, color = "Black", size = 1, style = 'solid'):
+    def __init__(self, id, vertices, color = "Black", size = 1, style = 'solid'):
+        self.id = id #INT
         self.vertices = vertices #2-TUPLE OF VERTEX OBJECTS
         self.color = color #STRING
         self.size = size #INT, THICKNESS
