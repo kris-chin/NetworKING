@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-#from model import *
+import model.Accessor
 
 app = Flask(__name__) #our app is a new Flask instance
 
@@ -13,7 +13,13 @@ def hello_world(): #for example, '/' is bound to hello_world
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        user2 = {'username' : 'POSTIE'}
+        
+        id = int(request.form['username'])
+        A = model.Accessor.Accessor("src/flask/model/test_database.db")
+        firstVertexName = A.GetVerticesData(id)[0][2]
+        print(firstVertexName)
+
+        user2 = {'username' : firstVertexName}
         return render_template('index.html', title ='THE GANG 2', user=user2)
     else:
         user = {'username' : 'dog'} #this is a json
