@@ -49,6 +49,7 @@ class Accessor:
             CREATE TABLE IF NOT EXISTS usersettings
                 (id INTEGER NOT NULL PRIMARY KEY,
                 userid INTEGER,
+                username TEXT,
                 darkmode BIT)
             '''
         )
@@ -187,9 +188,10 @@ class Accessor:
         #return the query results
         return self.c.fetchall()
 
-    def SetUserData(self,graph,userid):
-        #update the usersettings data for the given userid based on the inputted settings
-        print("TODO: SetUserData()")
+    def SetUserData(self,settingsjson,userid):
+        #update the usersettings data for the given userid based on the inputted json
+        print("TODO")
+
 
     def SetAllData(self,graph,userid):
         self.SetClassificationsData(graph,userid)
