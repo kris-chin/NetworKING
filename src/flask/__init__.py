@@ -16,15 +16,12 @@ def index():
         
         id = int(request.form['userid'])
         A = model.Accessor.Accessor("model/test_database.db")
-        #TODO: username needs to be implemented with usersettings (json)
-        #username = A.GetVerticesData(id)[0][2]
-
-        #print(firstVertexName)
+        username = A.GetUserData(id)[0][2]
 
         user2 = {'userid': id, 'username' : username}
         return render_template('index.html', title ='THE GANG 2', user=user2)
     else:
-        user = {'userid': 'ANGELO', 'username' : 'dog'} #this is a json
+        user = {'userid': '-1', 'username' : 'dog'} #this is a json
         return render_template('index.html', title='THE GANG', user=user)
 
 #this only runs if the file was run as a script

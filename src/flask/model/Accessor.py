@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3, json
 #The Accessor Object access the DB for Graph Information for a user id.
 #It returns the collected information in the form of our Python Objects that we created.
 class Accessor:
@@ -52,8 +52,36 @@ class Accessor:
                 username TEXT,
                 darkmode BIT)
             '''
-        )
-
+        ) 
+        #check for missing columns in usersettings and add them
+        try:
+            self.c.execute('''
+                SELECT username FROM usersettings
+                '''
+            )
+        except sqlite3.Error:
+            #sqlite3 can only execute 1 statement at a time, i'll have to fix this so it doesn't look so ugly
+            self.c.execute('''
+                ALTER TABLE usersettings
+                RENAME TO usersettings_temp
+                '''
+            ) 
+            self.c.execute('''
+                CREATE TABLE usersettings
+                    (id INTEGER NOT NULL PRIMARY KEY,
+                        userid INTEGER,
+                        username TEXT,
+                        darkmode BIT)
+                '''
+            )
+            self.c.execute('''
+                INSERT INTO usersettings (userid, darkmode) SELECT userid, darkmode FROM usersettings_temp
+            '''
+            )
+            self.c.execute('''
+                DROP TABLE usersettings_temp
+            '''
+            )
         self.conn.commit()
     def GetClassificationsData(self,userid):
         #Returns a list of Row Data for Classifications (Needs cleaning)
@@ -188,10 +216,31 @@ class Accessor:
         #return the query results
         return self.c.fetchall()
 
-    def SetUserData(self,settingsjson,userid):
-        #update the usersettings data for the given userid based on the inputted json
-        print("TODO")
+    def SetUserData(self,json_settings_file,userid):
+        with open(json_settings_file) as file:
+            data = json.load(file)
+            print("file loaded")
+            #Check if user exists
+            self.c.execute('''
+                SELECT * FROM usersettings
+                WHERE (userid = ?)
+                ''', (userid, )
+            )
 
+            if self.c.fetchone() != None:
+                self.c.execute('''
+                    UPDATE usersettings
+                    SET username = ?, darkmode = ?
+                    WHERE (userid = ?)
+                    ''', (data['username'], (data['darkmode'] == "True"), userid, )
+                )
+            else: #if user doesn't even exist
+                self.c.execute('''
+                    INSERT INTO usersettings (userid, username, darkmode)
+                    VALUES (?, ?, ?)
+                    ''', (userid, data['username'], (data['darkmode'] == "True"),  )
+                )
+        self.conn.commit()
 
     def SetAllData(self,graph,userid):
         self.SetClassificationsData(graph,userid)
