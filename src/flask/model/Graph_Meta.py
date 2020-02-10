@@ -1,4 +1,4 @@
-import Graph
+import model.Graph
 
 #Both the Analytics and Statistics objects point to a graph object where they will do all of their calculations
 

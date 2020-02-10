@@ -4,6 +4,9 @@
     </head>
     <body>
         <h1> YO, {{user.username}}</h1>
+        <p>{{graph.classifications}}</p>
+        <p>{{graph.vertices}}</p>
+        <p>{{graph.edges}}</p>
         <form action='/index' method='POST'>
             <input type="text" name ="userid">
             <input type="submit" value="Submito">

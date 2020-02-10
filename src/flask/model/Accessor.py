@@ -242,8 +242,8 @@ class Accessor:
                 )
         self.conn.commit()
 
-    def SetAllData(self,graph,userid):
+    def SetAllData(self,graph,userid,settings_file):
         self.SetClassificationsData(graph,userid)
         self.SetEdgesData(graph,userid)
         self.SetVerticesData(graph,userid)
-        self.SetUserData(graph,userid)
+        self.SetUserData(graph,userid,settings_file)

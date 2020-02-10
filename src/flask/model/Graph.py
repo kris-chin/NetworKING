@@ -104,3 +104,19 @@ class Graph:
                     NeighborList.append(Edge[0]) #append it
         
         return NeighborList
+
+def FindClassification(classificationlist, stringinput): #goes through classification list to find respective classification
+    for c in classificationlist:
+        if c.name == stringinput:
+            print("Found '" + stringinput + "'")
+            return c
+    print("Couldn't find '" + stringinput + "'")
+    return None
+
+def FindVertex(vertexlist, stringinput): #goes through vertex list and returns vertex if matching
+    for v in vertexlist:
+            if v.name == stringinput:
+                print("Found '" + stringinput + "'")
+                return v
+    print("Couldn't find '" + stringinput + "'")
+    return None
