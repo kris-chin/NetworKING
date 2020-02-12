@@ -8,6 +8,17 @@ class Classification:
         return self.name
     def IncrementCount(self):
         self.count += 1
+    def GetName(self):
+        return self.name
+
+    #returns the json representation of the classification object
+    def json(self):
+        return {
+            'id' : self.id,
+            'name' : self.GetName(),
+            'color' : self.color,
+            'count' : self.count
+        }
 
 class Vertex:
     def __init__(self, id, name, type, health, shape = 'o', notes = 'None'):
@@ -40,6 +51,20 @@ class Vertex:
         print("Shape: '" + self.shape + "'")
         if self.notes != "None":
             print("Notes: " + self.notes)
+        
+    def GetName(self):
+        return self.name
+
+    #returns the json representation of the vertex object
+    def json(self):
+        return {
+            'id' : self.id,
+            'name' : self.GetName(),
+            'type' : self.type.GetName(),
+            'health' : self.health,
+            'shape' : self.shape,
+            'notes' : self.notes
+        }
 
 class Edge:
     def __init__(self, id, vertices, color = "Black", size = 1, style = 'solid'):
@@ -61,6 +86,22 @@ class Edge:
         self.color = newEdge.color
         self.size = newEdge.size
         self.style = newEdge.style
+
+    #Returns the names of the vertices as the edge's name
+    def GetName(self):
+        return "(" + self.vertices[0].name + ", " + self.vertices[1].name + ")"
+
+    #Returns the json representation of the Edge
+    def json(self):
+        return {
+            'id' : self.id,
+            'name' : self.GetName(),
+            'vertex1' : self.vertices[0].GetName(),
+            'vertex2' : self.vertices[1].GetName(),
+            'color' : self.color,
+            'size' : self.size,
+            'style' : self.style
+        }
 
 class Graph:
     def __init__(self, vertices, edges, classifications):
@@ -105,10 +146,16 @@ class Graph:
         
         return NeighborList
 
+    #Returns the JSON representation of the graph
+    def json(self):
+        return {'classifications' : [c.json() for c in self.classifications], 'vertices' : [v.json() for v in self.vertices], 'edges' : [e.json() for e in self.edges] }
+
+############################################################
+
 def FindClassification(classificationlist, stringinput): #goes through classification list to find respective classification
     for c in classificationlist:
         if c.name == stringinput:
-            print("Found '" + stringinput + "'")
+            #print("Found '" + stringinput + "'")
             return c
     print("Couldn't find '" + stringinput + "'")
     return None
@@ -116,7 +163,7 @@ def FindClassification(classificationlist, stringinput): #goes through classific
 def FindVertex(vertexlist, stringinput): #goes through vertex list and returns vertex if matching
     for v in vertexlist:
             if v.name == stringinput:
-                print("Found '" + stringinput + "'")
+                #print("Found '" + stringinput + "'")
                 return v
     print("Couldn't find '" + stringinput + "'")
     return None

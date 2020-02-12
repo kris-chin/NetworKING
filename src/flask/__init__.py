@@ -38,8 +38,7 @@ def index():
         G = model.Graph.Graph(vertices,edges,classifications)
 
         user = {'userid': id, 'username' : username}
-        graph = {'classifications' : classifications, 'vertices' : vertices, 'edges' : edges}
-        return render_template('index.html', title ='THE GANG 2', user=user, graph = graph)
+        return render_template('index.html', title ='THE GANG 2', user=user, graph = G.json())
     else:
         user = {'userid': '-1', 'username' : 'dog'} #this is a json
         graph = {'classifications' : [], 'vertices': [], 'edges' : []}
