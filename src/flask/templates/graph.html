@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <title>{{ title }} - Hi </title>
+    </head>
+    <body>
+        <h1> YO, {{user.username}}</h1>
+
+        <p>Classifications:</p>
+        <ul>
+            {%for c in graph.classifications%}
+                <li>{{c.name}}</li>
+            {%endfor%}
+        </ul>
+
+        <p>Vertices:</p>
+        <ul>
+            {%for v in graph.vertices%}
+                <li>{{v.name}}</li>
+            {%endfor%}
+        </ul>
+
+        <p>Edges:</p>
+        <ul>
+            {%for e in graph.edges%}
+                <li>{{ e.name }}</li>
+            {%endfor%}
+        </ul>
+    </body>
+</html>

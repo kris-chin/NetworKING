@@ -43,43 +43,30 @@ class Accessor:
                 color TEXT,
                 count INTEGER)
             ''')
-        
-        #Create "usersettings" table
+        #Create a "userbase" table (be careful!!!)
         self.c.execute('''
-            CREATE TABLE IF NOT EXISTS usersettings
-                (id INTEGER NOT NULL PRIMARY KEY,
-                userid INTEGER,
-                username TEXT,
-                darkmode BIT)
+            CREATE TABLE IF NOT EXISTS userbase
+            (id INTEGER NOT NULL PRIMARY KEY,
+            userid INTEGER,
+            username TEXT,
+            password TEXT,
+            settingsfile TEXT
+            )
             '''
-        ) 
-        #check for missing columns in usersettings and add them
+        )
         try:
             self.c.execute('''
-                SELECT username FROM usersettings
-                '''
-            )
-        except sqlite3.Error:
+                SELECT settingsfile from userbase
+            ''')
+        except (sqlite3.Error): #used for debug. modify the below table individually to your liking
+            print("UPDATING")
             #sqlite3 can only execute 1 statement at a time, i'll have to fix this so it doesn't look so ugly
             self.c.execute('''
-                ALTER TABLE usersettings
-                RENAME TO usersettings_temp
-                '''
-            ) 
-            self.c.execute('''
-                CREATE TABLE usersettings
-                    (id INTEGER NOT NULL PRIMARY KEY,
-                        userid INTEGER,
-                        username TEXT,
-                        darkmode BIT)
-                '''
-            )
-            self.c.execute('''
-                INSERT INTO usersettings (userid, darkmode) SELECT userid, darkmode FROM usersettings_temp
+                INSERT INTO userbase (userid) SELECT userid FROM usersettings
             '''
             )
             self.c.execute('''
-                DROP TABLE usersettings_temp
+                DROP TABLE usersettings
             '''
             )
         self.conn.commit()
@@ -208,7 +195,7 @@ class Accessor:
         #Returns a list of Row data for User Settings (Needs cleaning)
         #Get all of the Settings that have the same userid as the provided userid
         self.c.execute('''
-            SELECT *  FROM usersettings
+            SELECT settingsfile  FROM userbase
             WHERE userid = ?;
             ''', (userid, )
             )
@@ -216,34 +203,42 @@ class Accessor:
         #return the query results
         return self.c.fetchall()
 
-    def SetUserData(self,json_settings_file,userid):
-        with open(json_settings_file) as file:
-            data = json.load(file)
-            print("file loaded")
+    def SetUserSettings(self,json_settings_file,userid):
+        #with open(json_settings_file) as file:
+            #data = json.load(file)
+            #print("file loaded")
             #Check if user exists
-            self.c.execute('''
-                SELECT * FROM usersettings
-                WHERE (userid = ?)
-                ''', (userid, )
-            )
+        self.c.execute('''
+            SELECT * FROM userbase
+            WHERE (userid = ?)
+            ''', (userid, )
+        )
 
-            if self.c.fetchone() != None:
-                self.c.execute('''
-                    UPDATE usersettings
-                    SET username = ?, darkmode = ?
-                    WHERE (userid = ?)
-                    ''', (data['username'], (data['darkmode'] == "True"), userid, )
-                )
-            else: #if user doesn't even exist
-                self.c.execute('''
-                    INSERT INTO usersettings (userid, username, darkmode)
-                    VALUES (?, ?, ?)
-                    ''', (userid, data['username'], (data['darkmode'] == "True"),  )
-                )
+        if self.c.fetchone() != None:
+            self.c.execute('''
+                UPDATE usersbase
+                SET usersettings
+                WHERE (userid = ?)
+                ''', (json_settings_file, userid, )
+            )
+        else: #if user doesn't even exist
+            print("user n/a")
+            #we can't update settings, since the user doesn't exist. we need the user to sign in
         self.conn.commit()
+
+    #finds a userid using a provided username and pass (extremely unsecure. remember to change)
+    def FindUserID(self,user,password):
+        self.c.execute('''
+            SELECT userid FROM userbase
+            WHERE (username = ? AND password = ?)
+        ''', (user,password, ) )
+        if self.c.fetchone() != None:
+            return self.c.fetchall()
+        else:
+            return None
 
     def SetAllData(self,graph,userid,settings_file):
         self.SetClassificationsData(graph,userid)
         self.SetEdgesData(graph,userid)
         self.SetVerticesData(graph,userid)
-        self.SetUserData(graph,userid,settings_file)
+        #self.SetUserData(graph,userid,settings_file)

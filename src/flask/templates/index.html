@@ -1,34 +1,22 @@
 <html>
     <head>
-        <title>{{ title }} - Hi </title>
+
     </head>
     <body>
-        <h1> YO, {{user.username}}</h1>
-
-        <p>Classifications:</p>
-        <ul>
-            {%for c in graph.classifications%}
-                <li>{{c.name}}</li>
-            {%endfor%}
-        </ul>
-
-        <p>Vertices:</p>
-        <ul>
-            {%for v in graph.vertices%}
-                <li>{{v.name}}</li>
-            {%endfor%}
-        </ul>
-
-        <p>Edges:</p>
-        <ul>
-            {%for e in graph.edges%}
-                <li>{{ e.name }}</li>
-            {%endfor%}
-        </ul>
-
-        <form action='/index' method='POST'>
-            <input type="text" name ="userid">
-            <input type="submit" value="Submito">
+        <p>Welcome to NetworKING!</p>
+        <p>Enter your username and password (NOT SECURE. DON'T ACTUALLY PUT A REAL PASSWORD YET):</p>
+        <p>{%if (invalid == True)%}</p>
+            <p>Invalid.</p>
+        <p>{%endif%}</p>
+        <form action='/graph' method='POST'>
+            <input type="text" name ="user">
+            <input type="password" name ="pass">
+            <input type="submit" value="Log In">
+        </form>
+        <p>Alternatively... Sign Up!</p>
+        <form action='/signup' method='POST'>
+            <input type="text" name = "user">
+            <input type="submit" value="Sign Up">
         </form>
     </body>
 </html>

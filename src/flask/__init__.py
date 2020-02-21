@@ -6,19 +6,25 @@ app = Flask(__name__) #our app is a new Flask instance
 #the @ symbol is a decorator in python
 @app.route('/') #by decorating route() with ('/'), it binds any following functions with the '/' URL
 
-def hello_world(): #for example, '/' is bound to hello_world
-    #the tutorials say to do all of this in an HTML template and not literally just returning a string of HTML code, but hey.
-    return '<a href="http://google.com/"> Click this to go to google </a>'
+def index(): #for example, '/' is bound to hello_world
+    return render_template('index.html', invalid = False)
 
-@app.route('/index', methods=['GET', 'POST'])
-def index():
+@app.route('/graph', methods=['GET', 'POST'])
+
+def graph():
     if request.method == 'POST':
         
         #access the respective data based on the inputted userid
-        id = int(request.form['userid'])
-        A = model.Accessor.Accessor("model/test_database.db")
-        username = A.GetUserData(id)[0][2]
+        username = request.form['user']
+        password = request.form['pass']
 
+        A = model.Accessor.Accessor("model/test_database.db")
+        try:
+            id = int(A.FindUserID(username,password))
+        except:
+            print("NO USER FOUND")
+            return render_template('index.html', invalid = True)
+        print("USER " + username + " FOUND. Loading...")
         #create respective lists of objects from db data
         classifications = []
         for row in A.GetClassificationsData(id):
@@ -38,11 +44,16 @@ def index():
         G = model.Graph.Graph(vertices,edges,classifications)
 
         user = {'userid': id, 'username' : username}
-        return render_template('index.html', title ='THE GANG 2', user=user, graph = G.json())
+        return render_template('graph.html', title ='THE GANG 2', user=user, graph = G.json())
     else:
         user = {'userid': '-1', 'username' : 'dog'} #this is a json
         graph = {'classifications' : [], 'vertices': [], 'edges' : []}
-        return render_template('index.html', title='THE GANG', user=user, graph = graph)
+        return render_template('graph.html', title='THE GANG', user=user, graph = graph)
+
+@app.route('/signup', methods = ['GET', 'POST'])
+
+def signup():
+    return render_template('signup.html')
 
 #this only runs if the file was run as a script
 if __name__ == '__main__':
