@@ -10,7 +10,6 @@ def index(): #for example, '/' is bound to hello_world
     return render_template('index.html', invalid = False)
 
 @app.route('/graph', methods=['GET', 'POST'])
-
 def graph():
     if request.method == 'POST':
         
@@ -50,10 +49,17 @@ def graph():
         graph = {'classifications' : [], 'vertices': [], 'edges' : []}
         return render_template('graph.html', title='THE GANG', user=user, graph = graph)
 
-@app.route('/signup', methods = ['GET', 'POST'])
+@app.route('/graph/update', methods = ['POST'])
+def update():
+    print("TODO: calling this method updates the graph with the new graph")
 
+@app.route('/signup', methods = ['GET', 'POST'])
 def signup():
-    return render_template('signup.html')
+    if request.method == 'GET':
+        return render_template('signup.html')
+    else:
+        #TODO: send user-inputted data to server
+        return render_template('success.html')
 
 #this only runs if the file was run as a script
 if __name__ == '__main__':
