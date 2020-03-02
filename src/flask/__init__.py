@@ -56,10 +56,22 @@ def update():
 @app.route('/signup', methods = ['GET', 'POST'])
 def signup():
     if request.method == 'GET':
-        return render_template('signup.html')
+        email = ""; username = ""; password = ""
+        data = {'email':email , 'username': username, 'password':password}
+
+        return render_template('signup.html', invalid = False, userdata = data)
     else:
-        #TODO: send user-inputted data to server
-        return render_template('success.html')
+        email = request.form['email']
+        username = request.form['user']
+        password = request.form['pass']
+
+        data = {'email':email , 'username': username, 'password':password}
+
+        if (username == "" or password == "" or email == ""):
+            return render_template('signup.html', invalid = True, userdata = data)
+        else:
+            #TODO: check to make sure the inputted information doesn't already exist in the database
+            return render_template('success.html', userdata = data)
 
 #this only runs if the file was run as a script
 if __name__ == '__main__':
