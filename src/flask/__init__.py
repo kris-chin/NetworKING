@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-import model.Accessor, model.Graph, model.Graph_Meta
+import model.Accessor, model.Graph, model.Graph_Meta, User
 
 app = Flask(__name__) #our app is a new Flask instance
 
@@ -70,7 +70,21 @@ def signup():
         if (username == "" or password == "" or email == ""):
             return render_template('signup.html', invalid = True, userdata = data)
         else:
-            #TODO: check to make sure the inputted information doesn't already exist in the database
+            
+            if (not (User.validEmail(email))): #if valid email
+                print("Email is used")
+                return render_template('signup.html', invalid = True, userdata = data)
+            elif (not (User.validUser(username))): #if user 
+                print("username is taken")
+                return render_template('signup.html', invalid = True, userdata = data)
+            elif (not (User.validPassword(password))):
+                print("password is invalid")
+                return render_template('signup.html', invalid = True, userdata = data)
+            
+            print("Valid.")
+
+            #TODO: add to database
+
             return render_template('success.html', userdata = data)
 
 #this only runs if the file was run as a script
