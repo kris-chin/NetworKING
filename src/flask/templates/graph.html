@@ -8,14 +8,18 @@
         <div id="graphdata">
             <div id="classifications">
                 <div id = 'graph-class-actions'>
-                    <button type="button">Add Class</button>
+                    <form action="" method = "POST">
+                        <input type ="submit" name = "add_class" value = "Add Class">
+                    </form>
                 </div>
                 {%for c in graph.classifications%}
                 <div class = 'classificaion'>
                     <p>ID: {{c.id}} Name: {{c.name}} Count: {{c.count}}</p>
                     <div class = 'classification-actions'>
-                        <button type="button">Edit Class</button>
-                        <button type="button">Delete Class</button>
+                        <form action="" method = "POST">
+                            <input type ="submit" name = "edit_class" value = "Edit Class">
+                            <input type ="submit" name = "delete_class" value = "Delete Class">
+                        </form>
                     </div>
                 </div>
                 {%endfor%}
@@ -28,9 +32,11 @@
                         <p>ID: {{v.id}}</p>
                         <p>Name: {{v.name}}</p>
                         <div class = 'vertex-actions'>
-                            <button type="button">Edit Node</button>
-                            <button type="button">Add Neighbor</button>
-                            <button type="button">Delete Node</button>
+                            <form action="" method = "POST">
+                                <input type ="submit" name = "edit_vertex" value = "Edit Node">
+                                <input type ="submit" name = "add_neighbor" value = "Add Neighbor">
+                                <input type ="submit" name = "delete_vertex" value = "Delete Node">
+                            </form>
                         </div>
                     </div>
                     {%endfor%}
@@ -43,8 +49,10 @@
                     <div class = 'edge'>
                         <p>CONNECTION FROM {{e.vertex1}} TO {{e.vertex2}}</p>
                         <div class = 'edge-actions'>
-                            <button type="button">Edit Edge</button>
-                            <button type="button">Delete Edge</button>
+                            <form action="" method = "POST">
+                                <input type ="submit" name = "edit_edge" value = "Edit Edge">
+                                <input type ="submit" name = "delete_edge" value = "Delete Edge">
+                            </form>
                         </div>
                     </div>
                     {%endfor%}
@@ -54,13 +62,15 @@
 
         <p>Meta:</p>
         <div id="graph_meta">
-            
+
         </div>
 
         <p>Settings:</p>
         <div id="graph_settings">
-            <button type="button">Edit User Settings</button>
-            <button type="button">Log Out</button>
+            <form action="" method = "POST">
+                <input type ="submit" name = "edit_settings" value = "Edit User Settings">
+                <input type ="submit" name = "logout" value = "Log Out">
+            </form>
         </div>
 
     </body>
