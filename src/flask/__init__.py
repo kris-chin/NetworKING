@@ -83,7 +83,9 @@ def signup():
             
             print("Valid.")
 
-            #TODO: add to database
+            #add to database
+            A = model.Accessor.Accessor("model/test_database.db")
+            A.AddUser(email,username,password)
 
             return render_template('success.html', userdata = data)
 

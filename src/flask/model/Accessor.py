@@ -48,6 +48,7 @@ class Accessor:
             CREATE TABLE IF NOT EXISTS userbase
             (id INTEGER NOT NULL PRIMARY KEY,
             userid INTEGER,
+            email TEXT,
             username TEXT,
             password TEXT,
             settingsfile TEXT
@@ -203,6 +204,17 @@ class Accessor:
         #return the query results
         return self.c.fetchall()
 
+    def AddUser(self,email,username,password):
+        #Adds a user to the userbase
+        newID = self.GenerateUserID()
+
+        self.c.execute('''
+        INSERT INTO userbase (userid, email, username, password )
+        VALUES (?, ?, ?, ?)
+        ''', (newID, email, username, password, )
+        )
+        self.conn.commit()
+
     def SetUserSettings(self,json_settings_file,userid):
         #with open(json_settings_file) as file:
             #data = json.load(file)
@@ -232,8 +244,14 @@ class Accessor:
             SELECT userid FROM userbase
             WHERE (username = ? AND password = ?)
         ''', (user,password, ) )
-        if self.c.fetchone() != None:
-            return self.c.fetchall()
+        ids = self.c.fetchall()
+        print("ids: " + str(ids))
+        if ids != None:
+            if (len(ids) == 1):
+                return ids[0][0]
+            else:
+                print("There is a duplicate entry of either username or password in the database")
+                return None
         else:
             return None
 
@@ -242,3 +260,14 @@ class Accessor:
         self.SetEdgesData(graph,userid)
         self.SetVerticesData(graph,userid)
         #self.SetUserData(graph,userid,settings_file)
+
+    def GenerateUserID(self):
+        self.c.execute('''
+            SELECT max(userid) FROM userbase;
+        ''')
+        highestValue = self.c.fetchone()[0]
+        if highestValue != None:
+            #print("highestValue:" + str(highestValue))
+            return highestValue + 1
+        else:
+            return None
