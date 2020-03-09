@@ -7,29 +7,60 @@
 
         <div id="graphdata">
             <div id="classifications">
-                <p>Classifications:</p>
-                <ul>
-                    {%for c in graph.classifications%}
-                        <li>{{c.name}}</li>
-                    {%endfor%}
-                </ul>
+                <div id = 'graph-class-actions'>
+                    <button type="button">Add Class</button>
+                </div>
+                {%for c in graph.classifications%}
+                <div class = 'classificaion'>
+                    <p>ID: {{c.id}} Name: {{c.name}} Count: {{c.count}}</p>
+                    <div class = 'classification-actions'>
+                        <button type="button">Edit Class</button>
+                        <button type="button">Delete Class</button>
+                    </div>
+                </div>
+                {%endfor%}
             </div>
             <div id="vertices">
                 <p>Vertices:</p>
-                <ul>
+                <div>
                     {%for v in graph.vertices%}
-                        <li>{{v.name}}</li>
+                    <div class = 'vertex'>
+                        <p>ID: {{v.id}}</p>
+                        <p>Name: {{v.name}}</p>
+                        <div class = 'vertex-actions'>
+                            <button type="button">Edit Node</button>
+                            <button type="button">Add Neighbor</button>
+                            <button type="button">Delete Node</button>
+                        </div>
+                    </div>
                     {%endfor%}
-                </ul>
+                </div>
             </div>
             <div id ="edges">
                 <p>Edges:</p>
-                <ul>
+                <div>
                     {%for e in graph.edges%}
-                        <li>{{ e.name }}</li>
+                    <div class = 'edge'>
+                        <p>CONNECTION FROM {{e.vertex1}} TO {{e.vertex2}}</p>
+                        <div class = 'edge-actions'>
+                            <button type="button">Edit Edge</button>
+                            <button type="button">Delete Edge</button>
+                        </div>
+                    </div>
                     {%endfor%}
-                </ul>
+                </div>
             </div>
+        </div>
+
+        <p>Meta:</p>
+        <div id="graph_meta">
+            
+        </div>
+
+        <p>Settings:</p>
+        <div id="graph_settings">
+            <button type="button">Edit User Settings</button>
+            <button type="button">Log Out</button>
         </div>
 
     </body>

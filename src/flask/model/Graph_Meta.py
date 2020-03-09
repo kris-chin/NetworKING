@@ -51,6 +51,10 @@ class Analytics:
                 HighestDegreeNode = Node
 
         return HighestDegreeNode
+    
+    #TODO: json
+    #def json(self):
+        
 
 class Statistics:
     def __init__(self, graph):
@@ -70,3 +74,6 @@ class Statistics:
             else:
                 counts[Node.health] = 1
         return counts
+    
+    #TODO: json
+    #def json(self):
