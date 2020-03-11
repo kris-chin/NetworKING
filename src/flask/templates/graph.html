@@ -6,25 +6,63 @@
         <h1> YO, {{user.username}}</h1>
 
         <div id="graphdata">
+
             <div id="classifications">
+                
+                <p>Actions:</p>
+
                 <div id = 'graph-class-actions'>
-                    <form action="" method = "POST">
-                        <input type ="submit" name = "add_class" value = "Add Class">
-                    </form>
+                    <button type="button" onclick="
+                        var actions = document.getElementById('actionsettings_classifications_add');
+                        //TODO: get this to show up
+                        window.alert('display: ' + actions.style.display);
+                        if (actions.style.display == 'block'){
+                            actions.style.display = 'none';
+                        } else {
+                            actions.style.display = 'block';
+                        }
+                    "> Add Class </button>
+
+                    <div id = "actionsettings_classificaions_add" style="display:none;">
+                        <form action="/graph/update" method = "POST">
+                            <input type ="submit" name = "action" value = "Submit">
+                        </form>
+                        
+                    </div>
+
                 </div>
                 {%for c in graph.classifications%}
                 <div class = 'classificaion'>
                     <p>ID: {{c.id}} Name: {{c.name}} Count: {{c.count}}</p>
                     <div class = 'classification-actions'>
-                        <form action="" method = "POST">
-                            <input type ="submit" name = "edit_class" value = "Edit Class">
-                            <input type ="submit" name = "delete_class" value = "Delete Class">
-                        </form>
+
+                        <div id = "{{ 'actionlist_classifications_edit_' ~ c.id }}">
+                            <form action="/graph/update" method = "POST">
+                                <input type ="submit" name = "action" value = "Edit Class">
+                            </form>
+                        </div>
+
+                        <div id = "{{ 'actionlist_classifications_delete_' ~ c.id }}">
+                            <form action="/graph/update" method = "POST">
+                                <input type ="submit" name = "action" value = "Delete Class">
+                            </form>
+                        </div>
+
                     </div>
                 </div>
                 {%endfor%}
             </div>
+
             <div id="vertices">
+                <div id = 'graph-vertex-actions'>
+
+                    <div id = "actionlist_vertices_add">
+                        <form action="/graph/update" method = "POST">
+                            <input type ="submit" name = "action" value = "Add Node">
+                        </form>
+                    </div>
+
+                </div>
                 <p>Vertices:</p>
                 <div>
                     {%for v in graph.vertices%}
@@ -32,16 +70,31 @@
                         <p>ID: {{v.id}}</p>
                         <p>Name: {{v.name}}</p>
                         <div class = 'vertex-actions'>
-                            <form action="" method = "POST">
-                                <input type ="submit" name = "edit_vertex" value = "Edit Node">
-                                <input type ="submit" name = "add_neighbor" value = "Add Neighbor">
-                                <input type ="submit" name = "delete_vertex" value = "Delete Node">
-                            </form>
+
+                            <div id = "{{ 'actionlist_vertices_edit_' ~ v.id }}">
+                                <form action="/graph/update" method = "POST">
+                                    <input type ="submit" name = "action" value = "Edit Node">
+                                </form>
+                            </div>
+
+                            <div id = "{{ 'actionlist_vertices_addNeighbor_' ~ v.id }}">
+                                <form action="/graph/update" method = "POST">
+                                    <input type ="submit" name = "action" value = "Add Neighbor">
+                                </form>
+                            </div>
+
+                            <div id = "{{ 'actionlist_vertices_delete_' ~ v.id }}">
+                                <form action="/graph/update" method = "POST">
+                                    <input type ="submit" name = "action" value = "Delete Node">
+                                </form>
+                            </div>
+                            
                         </div>
                     </div>
                     {%endfor%}
                 </div>
             </div>
+
             <div id ="edges">
                 <p>Edges:</p>
                 <div>
@@ -49,15 +102,25 @@
                     <div class = 'edge'>
                         <p>CONNECTION FROM {{e.vertex1}} TO {{e.vertex2}}</p>
                         <div class = 'edge-actions'>
-                            <form action="" method = "POST">
-                                <input type ="submit" name = "edit_edge" value = "Edit Edge">
-                                <input type ="submit" name = "delete_edge" value = "Delete Edge">
-                            </form>
+
+                            <div id = "{{ 'actionlist_edges_edit_' ~ e.id }}">
+                                <form action="/graph/update" method = "POST">
+                                    <input type ="submit" name = "action" value = "Edit Edge">
+                                </form>
+                            </div>
+
+                            <div id = "{{ 'actionlist_edges_edit_' ~ e.id }}">
+                                <form action="/graph/update" method = "POST">
+                                    <input type ="submit" name = "action" value = "Delete Edge">
+                                </form>
+                            </div>
+
                         </div>
                     </div>
                     {%endfor%}
                 </div>
             </div>
+
         </div>
 
         <p>Meta:</p>
@@ -67,9 +130,9 @@
 
         <p>Settings:</p>
         <div id="graph_settings">
-            <form action="" method = "POST">
-                <input type ="submit" name = "edit_settings" value = "Edit User Settings">
-                <input type ="submit" name = "logout" value = "Log Out">
+            <form action="/graph/update" method = "POST">
+                <input type ="submit" name = "action" value = "Edit User Settings">
+                <input type ="submit" name = "action" value = "Log Out">
             </form>
         </div>
 

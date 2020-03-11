@@ -1,17 +1,21 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, redirect
 import model.Accessor, model.Graph, model.Graph_Meta, User
 
 app = Flask(__name__) #our app is a new Flask instance
+app.secret_key = 'secret key' #used for sessions
 
 #the @ symbol is a decorator in python
 @app.route('/') #by decorating route() with ('/'), it binds any following functions with the '/' URL
-
-def index(): #for example, '/' is bound to hello_world
-    return render_template('index.html', invalid = False)
+def index():
+    if 'user' in session: #if a user is logged in client-wise
+        print("A user is logged into the session. Redirecting...")
+        return redirect('/graph')
+    else: #if no one is logged in
+        return render_template('index.html', invalid = False)
 
 @app.route('/graph', methods=['GET', 'POST'])
 def graph():
-    if request.method == 'POST':
+    if request.method == 'POST': #called on log-in specifically.
         
         #access the respective data based on the inputted userid
         username = request.form['user']
@@ -24,6 +28,7 @@ def graph():
             print("NO USER FOUND")
             return render_template('index.html', invalid = True)
         print("USER " + username + " FOUND. Loading...")
+
         #create respective lists of objects from db data
         classifications = []
         for row in A.GetClassificationsData(id):
@@ -43,15 +48,71 @@ def graph():
         G = model.Graph.Graph(vertices,edges,classifications)
 
         user = {'userid': id, 'username' : username}
+
+        #save session variables for the user and the graph, these are basically secure cookies
+        session['user'] = user
+        session['graph'] = G.json()
+
         return render_template('graph.html', title ='THE GANG 2', user=user, graph = G.json())
     else:
-        user = {'userid': '-1', 'username' : 'dog'} #this is a json
-        graph = {'classifications' : [], 'vertices': [], 'edges' : []}
+        if 'user' in session: #if the user is already logged in on the client
+            user = session['user']
+            graph = session['graph']
+        else: #if no user is logged in 
+            user = {'userid': '-1', 'username' : 'dog'} #this is a json
+            graph = {'classifications' : [], 'vertices': [], 'edges' : []}
         return render_template('graph.html', title='THE GANG', user=user, graph = graph)
 
 @app.route('/graph/update', methods = ['POST'])
-def update():
-    print("TODO: calling this method updates the graph with the new graph")
+def Action():
+    #get action button clicked
+    action = request.form['action']
+
+    #get the graph for the current session
+    g = model.Graph.dejson(session['graph'])
+
+    if (action == 'Add Class'):
+        print("Add Class")
+
+    elif (action == 'Edit Class'):
+        print("Edit Class")
+
+    elif (action == 'Delete Class'):
+        print("Delete Class")
+
+    elif (action == 'Add Node'):
+        print("Add node")
+
+    elif (action == 'Edit Node'):
+        print("Edit Node")
+
+    elif (action == 'Add Neighbor'):
+        print('Add Neighbor')
+
+    elif (action == 'Delete Node'):
+        print("delete Node")
+
+    elif (action == 'Edit Edge'):
+        print("edit edge")
+
+    elif (action == 'Delete Edge'):
+        print("delete edge")
+
+    elif (action == 'Edit User Settings'):
+        print("EUS")
+
+    elif (action == 'Log Out'):
+        #pop session variables, logging the user out of the session
+        session.pop('user', None)
+        session.pop('graph', None)
+        return redirect('/') #go back to regular
+    else:
+        print('INVALID ACTION')
+
+    #update session values
+    session['graph'] = g.json()
+    
+    return render_template('graph.html', title ='THE GANG 2', user = session['user'], graph = session['graph'])
 
 @app.route('/signup', methods = ['GET', 'POST'])
 def signup():

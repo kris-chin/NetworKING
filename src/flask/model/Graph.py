@@ -152,6 +152,13 @@ class Graph:
 
 ############################################################
 
+def dejson(json_input):
+    classifications = [Classification(int(c['id']), c['name'], c['color']) for c in json_input['classifications'] ]
+    vertices = [Vertex(int(v['id']), v['name'], FindClassification(classifications,v['type']), int(v['health']), v['shape'], v['notes']) for v in json_input['vertices'] ]
+    edges = [Edge(int(e['id']), (FindVertex(vertices,e['vertex1']), FindVertex(vertices,e['vertex2'])), e['color'], int(e['size']), e['style']) for e in json_input['edges'] ]
+
+    return Graph(vertices,edges,classifications)
+
 def FindClassification(classificationlist, stringinput): #goes through classification list to find respective classification
     for c in classificationlist:
         if c.name == stringinput:
