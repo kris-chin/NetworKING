@@ -12,39 +12,56 @@
                 <p>Actions:</p>
 
                 <div id = 'graph-class-actions'>
-                    <button type="button" onclick="
-                        var actions = document.getElementById('actionsettings_classifications_add');
-                        //TODO: get this to show up
-                        window.alert('display: ' + actions.style.display);
-                        if (actions.style.display == 'block'){
-                            actions.style.display = 'none';
+                    <button type="button" onclick='
+                        var actions = document.getElementById("actionsettings_classifications_add");
+                        if (actions.style.display == "block"){
+                            actions.style.display = "none";
                         } else {
-                            actions.style.display = 'block';
+                            actions.style.display = "block";
                         }
-                    "> Add Class </button>
+                    '> Add Class </button>
 
-                    <div id = "actionsettings_classificaions_add" style="display:none;">
+                    <div id = "actionsettings_classifications_add" style="display:none;">
                         <form action="/graph/update" method = "POST">
-                            <input type ="submit" name = "action" value = "Submit">
+                            <input type = "text" name = "classification_name" placeholder = "Name">
+                            <input type = "text" name = "classification_color" placeholder = "Color" value = "Black">
+                            <input type = "hidden" name = "action" value = "Add Class">
+                            <!-- TODO: prevent adding class if not all important values are filled in-->
+                            <input type ="submit" value = "Add Class">
                         </form>
                         
                     </div>
 
                 </div>
                 {%for c in graph.classifications%}
-                <div class = 'classificaion'>
+                <div class = 'classificaion' style = "display:inline-block;">
                     <p>ID: {{c.id}} Name: {{c.name}} Count: {{c.count}}</p>
                     <div class = 'classification-actions'>
 
-                        <div id = "{{ 'actionlist_classifications_edit_' ~ c.id }}">
+                        <button type="button" onclick='
+                            var actions = document.getElementById("actionlist_classifications_edit_" + "{{c.id}}");
+                            if (actions.style.display == "block"){
+                                actions.style.display = "none";
+                            } else {
+                                actions.style.display = "block";
+                            }
+                        '> Edit Class </button>
+                        
+                        <div id = "{{ 'actionlist_classifications_edit_' ~ c.id }}" style="display:none;">
                             <form action="/graph/update" method = "POST">
-                                <input type ="submit" name = "action" value = "Edit Class">
+                                <input type = "text" name = "classification_name" placeholder = "Name" value = "{{c.name}}">
+                                <input type = "text" name = "classification_color" placeholder = "Color" value = "{{c.color}}">
+                                <input type = "hidden" name = "action" value = "Edit Class">
+                                <input type = "hidden" name = "id" value = {{c.id}}> 
+                                <input type = "submit" value = "Confirm Changes">
                             </form>
                         </div>
 
                         <div id = "{{ 'actionlist_classifications_delete_' ~ c.id }}">
                             <form action="/graph/update" method = "POST">
-                                <input type ="submit" name = "action" value = "Delete Class">
+                                <input type = "hidden" name = "action" value = "Delete Class">
+                                <input type = "hidden" name = "id" value = "{{c.id}}">
+                                <input type ="submit" value = "Delete Class">
                             </form>
                         </div>
 
@@ -56,9 +73,31 @@
             <div id="vertices">
                 <div id = 'graph-vertex-actions'>
 
-                    <div id = "actionlist_vertices_add">
+                    <button type="button" onclick='
+                        var actions = document.getElementById("actionsettings_vertices_add");
+                        if (actions.style.display == "block"){
+                            actions.style.display = "none";
+                        } else {
+                            actions.style.display = "block";
+                        }
+                    '> Add Node </button>
+
+                    <div id = "actionsettings_vertices_add" style='display:none;'>
                         <form action="/graph/update" method = "POST">
-                            <input type ="submit" name = "action" value = "Add Node">
+                            <input type = "text" name = "vertex_name" placeholder = "Name">
+                            <select id = "vertex_type" name = "vertex_type">
+                                {%for c in graph.classifications%}
+                                <option value = "{{c.id}}">{{c.name}}</option>
+                                {%endfor%}
+                            </select>
+                            <input type = "number" name = "vertex_health" placeholder = "Health" value = "1">
+                            <!-- Dropdown for vertex shape -->
+                            <input type ="text" name = "vertex_notes" placeholder = "Node Notes">
+
+                            <input type = "hidden" name = "action" value = "Add Vertex">
+                            <!-- TODO: prevent adding vertex if there are no vertex types-->
+                            <!-- TODO: prevent adding vertex if not all required fields are filled in-->
+                            <input type ="submit" value = "Add Vertex">
                         </form>
                     </div>
 
@@ -66,26 +105,69 @@
                 <p>Vertices:</p>
                 <div>
                     {%for v in graph.vertices%}
-                    <div class = 'vertex'>
+                    <div class = 'vertex' style= "display:inline-block;">
                         <p>ID: {{v.id}}</p>
                         <p>Name: {{v.name}}</p>
                         <div class = 'vertex-actions'>
 
-                            <div id = "{{ 'actionlist_vertices_edit_' ~ v.id }}">
+                            <button type="button" onclick='
+                                var actions = document.getElementById("actionlist_vertices_edit_" + "{{v.id}}" );
+                                if (actions.style.display == "block"){
+                                    actions.style.display = "none";
+                                } else {
+                                    actions.style.display = "block";
+                                }
+                            '> Edit Node </button>
+
+                            <div id = "{{ 'actionlist_vertices_edit_' ~ v.id }}" style="display:none;">
                                 <form action="/graph/update" method = "POST">
-                                    <input type ="submit" name = "action" value = "Edit Node">
+                                    <input type = "text" name = "vertex_name" placeholder = "Name" value = "{{v.name}}">
+                                    <select id = "vertex_type" name = "vertex_type">
+                                        {%for c in graph.classifications%}
+                                        <option value = "{{c.id}}">{{c.name}}</option>
+                                        {%endfor%}
+                                    </select>
+                                    <input type = "number" name = "vertex_health" placeholder = "Health" value = {{v.health}}>
+                                    <!-- Dropdown for vertex shape -->
+                                    <input type ="text" name = "vertex_notes" placeholder = "Node Notes" value = {{v.notes}}>
+
+                                    <input type = "hidden" name = "action" value = "Edit Vertex">
+                                    <input type = "hidden" name ="id" value = "{{v.id}}">
+                                    <input type ="submit" value = "Confirm Changes">
                                 </form>
                             </div>
 
-                            <div id = "{{ 'actionlist_vertices_addNeighbor_' ~ v.id }}">
+                            <button type="button" onclick='
+                                var actions = document.getElementById("actionlist_vertices_addNeighbor_" + "{{v.id}}" );
+                                if (actions.style.display == "block"){
+                                    actions.style.display = "none";
+                                } else {
+                                    actions.style.display = "block";
+                                }
+                            '> Add Neighbor </button>
+
+                            <div id = "{{ 'actionlist_vertices_addNeighbor_' ~ v.id }}" style = "display:none;">
                                 <form action="/graph/update" method = "POST">
-                                    <input type ="submit" name = "action" value = "Add Neighbor">
+                                    <!-- TODO: also don't show vertices that are already connected-->
+                                    <select id = "vertex_addNeighbor" name = "vertex_addNeighbor">
+                                        {%for n in graph.vertices%}
+                                            {%if v.id != n.id%}
+                                                <option value="{{n.id}}">{{n.name}}</option>
+                                            {%endif%}
+                                        {%endfor%}
+                                    </select>
+                                    <input type = "hidden" name = "action" value = "Add Neighbor">
+                                    <input type = "hidden" name = "id" value = "{{v.id}}">
+                                    <!-- TODO: prevent adding neighbor if there are no other neighbors-->
+                                    <input type ="submit" value = "Add Neighbor">
                                 </form>
                             </div>
 
                             <div id = "{{ 'actionlist_vertices_delete_' ~ v.id }}">
                                 <form action="/graph/update" method = "POST">
-                                    <input type ="submit" name = "action" value = "Delete Node">
+                                    <input type = "hidden" name = "action" value = "Delete Vertex">
+                                    <input type = "hidden" name = "id" value = "{{v.id}}">
+                                    <input type ="submit" value = "Delete Node">
                                 </form>
                             </div>
                             
@@ -99,19 +181,35 @@
                 <p>Edges:</p>
                 <div>
                     {%for e in graph.edges%}
-                    <div class = 'edge'>
+                    <div class = 'edge' style="display: inline-block;">
                         <p>CONNECTION FROM {{e.vertex1}} TO {{e.vertex2}}</p>
                         <div class = 'edge-actions'>
 
-                            <div id = "{{ 'actionlist_edges_edit_' ~ e.id }}">
+                            <button type="button" onclick='
+                                var actions = document.getElementById("actionlist_edges_edit_" + "{{e.id}}" );
+                                if (actions.style.display == "block"){
+                                    actions.style.display = "none";
+                                } else {
+                                    actions.style.display = "block";
+                                }
+                            '> Edit Edge </button>
+
+                            <div id = "{{ 'actionlist_edges_edit_' ~ e.id }}" style = "display:none;">
                                 <form action="/graph/update" method = "POST">
-                                    <input type ="submit" name = "action" value = "Edit Edge">
+                                    <input type = "color" name = "edge_color">
+                                    <input type = "number" name = "edge_size" placeholder = "Edge Size" value = "{{e.size}}">
+                                    <!-- Dropdown for edge style-->
+                                    <input type = "hidden" name = "action" value = "Edit Edge">
+                                    <input type = "hidden" name = "id" value = "{{e.id}}">
+                                    <input type ="submit" value = "Confirm Changes">
                                 </form>
                             </div>
 
                             <div id = "{{ 'actionlist_edges_edit_' ~ e.id }}">
                                 <form action="/graph/update" method = "POST">
-                                    <input type ="submit" name = "action" value = "Delete Edge">
+                                    <input type = "hidden" name = "action" value = "Delete Edge">
+                                    <input type = "hidden" name = "id" value = "{{e.id}}">
+                                    <input type ="submit" value = "Delete Edge">
                                 </form>
                             </div>
 
@@ -130,8 +228,12 @@
 
         <p>Settings:</p>
         <div id="graph_settings">
+
             <form action="/graph/update" method = "POST">
                 <input type ="submit" name = "action" value = "Edit User Settings">
+            </form>
+
+            <form action="/graph/update" method = "POST">
                 <input type ="submit" name = "action" value = "Log Out">
             </form>
         </div>

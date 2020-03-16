@@ -67,47 +67,94 @@ def graph():
 def Action():
     #get action button clicked
     action = request.form['action']
+    print("Action: " + str(action))
+    try:
+        id = int(request.form['id'])
+    except:
+        id = None
+    print("ID: " + str(id))
 
-    #get the graph for the current session
+    #get the graph object for the current session
     g = model.Graph.dejson(session['graph'])
 
     if (action == 'Add Class'):
-        print("Add Class")
+        input_name = request.form['classification_name']
+        input_color = request.form['classification_color']
+        input_id = model.Graph.HighestID(g.classifications) + 1
+        g.AddClass(model.Graph.Classification(input_id, input_name, input_color))
 
     elif (action == 'Edit Class'):
-        print("Edit Class")
+        input_name = request.form['classification_name']
+        input_color = request.form['classification_color']
+        g.UpdateClassification(id, input_name, input_color)
 
     elif (action == 'Delete Class'):
-        print("Delete Class")
+        g.RemoveClassification(id)
 
-    elif (action == 'Add Node'):
-        print("Add node")
+    elif (action == 'Add Vertex'):
+        input_name = request.form['vertex_name']
+        input_type_id = request.form['vertex_type'] #STRING OF TYPE, NEEDS CONVERSION
+        input_type = model.Graph.FindClassificationByID(g.classifications,int(input_type_id))
+        
+        input_health = request.form['vertex_health']
+        #input_shape = request.form['vertex_shape']
+        input_shape = 'o'
+        input_notes = request.form['vertex_notes']
 
-    elif (action == 'Edit Node'):
-        print("Edit Node")
+        input_id = model.Graph.HighestID(g.vertices) + 1
+
+        g.AddVertex(model.Graph.Vertex(input_id,input_name,input_type,input_health,input_shape,input_notes))
+
+    elif (action == 'Edit Vertex'):
+        input_name = request.form['vertex_name']
+        input_type_id = request.form['vertex_type'] #STRING OF TYPE ID
+        input_type = model.Graph.FindClassificationByID(g.classifications,int(input_type_id))
+        input_health = request.form['vertex_health']
+        #input_shape = request.form['vertex_shape'] 
+        input_shape = 'o'
+        input_notes = request.form['vertex_notes']
+        
+        g.UpdateVertex(id, input_name, input_type, input_health, input_shape, input_notes)
 
     elif (action == 'Add Neighbor'):
-        print('Add Neighbor')
+        input_neighbor_id = request.form['vertex_addNeighbor'] #ID OF NEIGHBOR
+        input_neighbor = model.Graph.FindVertexByID(g.vertices, int(input_neighbor_id))
+        #input_color
+        #input_size
+        #input_style
 
-    elif (action == 'Delete Node'):
-        print("delete Node")
+        input_id = model.Graph.HighestID(g.edges) + 1
+        input_vertex = model.Graph.FindVertexByID(g.vertices, id)
+
+        g.AddEdge(model.Graph.Edge(input_id, (input_vertex, input_neighbor)) )
+
+    elif (action == 'Delete Vertex'):
+        g.RemoveVertex(id)
 
     elif (action == 'Edit Edge'):
-        print("edit edge")
+        #input_color = request.form['edge_color'] #this is a color value
+        input_color = 'Black'
+        input_size = request.form['edge_size']
+        #input_style = request.form['edge_style']
+        input_style = 'solid'
+
+        g.UpdateEdge(id, input_color, input_size, input_style)
 
     elif (action == 'Delete Edge'):
-        print("delete edge")
+        g.RemoveEdge(id)
 
     elif (action == 'Edit User Settings'):
         print("EUS")
 
     elif (action == 'Log Out'):
+        #TODO: save new graph values in database
+
         #pop session variables, logging the user out of the session
         session.pop('user', None)
         session.pop('graph', None)
         return redirect('/') #go back to regular
     else:
-        print('INVALID ACTION')
+        print('INVALID ACTION: \"' + action + "\'")
 
     #update session values
     session['graph'] = g.json()
