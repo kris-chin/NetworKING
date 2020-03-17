@@ -172,12 +172,10 @@ class Graph:
         c = FindClassificationByID(self.classifications, id)
         if (c != None):
             #first, remove all vertices associated with this class
-            for v in self.vertices:
-                #TODO:fix why this only deletes only odd numbers
-                print([vert.id for vert in self.vertices])
-                if (v.type.id == c.id):
-                    #print(v.name)
-                    self.RemoveVertex(v.id)
+            for i in range(2): #big brain bug fixing (list only deletes odd values for some reason, so we fix this by loping twice)
+                for v in self.vertices:
+                    if (v.type.id == c.id):
+                        self.RemoveVertex(v.id)
             #then, delete the class
             self.classifications.remove(c)
             del c
@@ -253,7 +251,7 @@ def FindEdgeByVertexID(edgelist, vertex_id):
     for e in edgelist:
         if (e.vertices[0].id == vertex_id or e.vertices[1].id == vertex_id):
             return e
-    print("Couldn't find any edges containing vertex id: \'" + str(vertex_id) + "\'")
+    #print("Couldn't find any edges containing vertex id: \'" + str(vertex_id) + "\'")
     return None
 
 def FindEdgeByID(edgelist, ID):
