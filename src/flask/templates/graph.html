@@ -26,7 +26,6 @@
                             <input type = "text" name = "classification_name" placeholder = "Name">
                             <input type = "text" name = "classification_color" placeholder = "Color" value = "Black">
                             <input type = "hidden" name = "action" value = "Add Class">
-                            <!-- TODO: prevent adding class if not all important values are filled in-->
                             <input type ="submit" value = "Add Class">
                         </form>
                         
@@ -72,7 +71,8 @@
 
             <div id="vertices">
                 <div id = 'graph-vertex-actions'>
-
+                    
+                    {% if graph.classifications|length > 0 %}
                     <button type="button" onclick='
                         var actions = document.getElementById("actionsettings_vertices_add");
                         if (actions.style.display == "block"){
@@ -81,6 +81,7 @@
                             actions.style.display = "block";
                         }
                     '> Add Node </button>
+                    {%endif%}
 
                     <div id = "actionsettings_vertices_add" style='display:none;'>
                         <form action="/graph/update" method = "POST">
@@ -95,8 +96,6 @@
                             <input type ="text" name = "vertex_notes" placeholder = "Node Notes">
 
                             <input type = "hidden" name = "action" value = "Add Vertex">
-                            <!-- TODO: prevent adding vertex if there are no vertex types-->
-                            <!-- TODO: prevent adding vertex if not all required fields are filled in-->
                             <input type ="submit" value = "Add Vertex">
                         </form>
                     </div>
@@ -136,7 +135,8 @@
                                     <input type ="submit" value = "Confirm Changes">
                                 </form>
                             </div>
-
+                            
+                            {%if graph.vertices|length > 1%}
                             <button type="button" onclick='
                                 var actions = document.getElementById("actionlist_vertices_addNeighbor_" + "{{v.id}}" );
                                 if (actions.style.display == "block"){
@@ -145,10 +145,10 @@
                                     actions.style.display = "block";
                                 }
                             '> Add Neighbor </button>
+                            {%endif%}
 
                             <div id = "{{ 'actionlist_vertices_addNeighbor_' ~ v.id }}" style = "display:none;">
                                 <form action="/graph/update" method = "POST">
-                                    <!-- TODO: also don't show vertices that are already connected-->
                                     <select id = "vertex_addNeighbor" name = "vertex_addNeighbor">
                                         {%for n in graph.vertices%}
                                             {%if v.id != n.id%}
@@ -158,7 +158,6 @@
                                     </select>
                                     <input type = "hidden" name = "action" value = "Add Neighbor">
                                     <input type = "hidden" name = "id" value = "{{v.id}}">
-                                    <!-- TODO: prevent adding neighbor if there are no other neighbors-->
                                     <input type ="submit" value = "Add Neighbor">
                                 </form>
                             </div>

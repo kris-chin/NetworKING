@@ -255,7 +255,7 @@ class Accessor:
         else:
             return None
 
-    def SetAllData(self,graph,userid,settings_file):
+    def SetAllData(self,graph,userid):
         self.SetClassificationsData(graph,userid)
         self.SetEdgesData(graph,userid)
         self.SetVerticesData(graph,userid)

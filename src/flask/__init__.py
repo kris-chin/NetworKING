@@ -3,6 +3,7 @@ import model.Accessor, model.Graph, model.Graph_Meta, User
 
 app = Flask(__name__) #our app is a new Flask instance
 app.secret_key = 'secret key' #used for sessions
+database = "model/test_database.db"
 
 #the @ symbol is a decorator in python
 @app.route('/') #by decorating route() with ('/'), it binds any following functions with the '/' URL
@@ -21,7 +22,7 @@ def graph():
         username = request.form['user']
         password = request.form['pass']
 
-        A = model.Accessor.Accessor("model/test_database.db")
+        A = model.Accessor.Accessor(database)
         try:
             id = int(A.FindUserID(username,password))
         except:
@@ -81,7 +82,11 @@ def Action():
         input_name = request.form['classification_name']
         input_color = request.form['classification_color']
         input_id = model.Graph.HighestID(g.classifications) + 1
-        g.AddClass(model.Graph.Classification(input_id, input_name, input_color))
+
+        if (input_name == '' or input_color ==''):
+            print("Error: Incomplete input")
+        else:
+            g.AddClass(model.Graph.Classification(input_id, input_name, input_color))
 
     elif (action == 'Edit Class'):
         input_name = request.form['classification_name']
@@ -103,7 +108,10 @@ def Action():
 
         input_id = model.Graph.HighestID(g.vertices) + 1
 
-        g.AddVertex(model.Graph.Vertex(input_id,input_name,input_type,input_health,input_shape,input_notes))
+        if (input_name == '' or input_type == None):
+            print("Error: Empty or Invalid Input for Adding Vertex")
+        else:
+            g.AddVertex(model.Graph.Vertex(input_id,input_name,input_type,input_health,input_shape,input_notes))
 
     elif (action == 'Edit Vertex'):
         input_name = request.form['vertex_name']
@@ -126,7 +134,12 @@ def Action():
         input_id = model.Graph.HighestID(g.edges) + 1
         input_vertex = model.Graph.FindVertexByID(g.vertices, id)
 
-        g.AddEdge(model.Graph.Edge(input_id, (input_vertex, input_neighbor)) )
+        if (input_neighbor == None):
+            print("Error: Neighbor is invalid")
+        elif (input_neighbor in g.GetNeighbors(input_vertex) ):
+            print("Error: Vertices are already neighbors")
+        else:
+            g.AddEdge(model.Graph.Edge(input_id, (input_vertex, input_neighbor)) )
 
     elif (action == 'Delete Vertex'):
         g.RemoveVertex(id)
@@ -147,7 +160,10 @@ def Action():
         print("EUS")
 
     elif (action == 'Log Out'):
-        #TODO: save new graph values in database
+        #note: not secure, if id is modified then you can edit the values of other id's graphs
+        A = model.Accessor.Accessor(database)
+        A.SetAllData(g,int(session['user']['userid']))
+        #print(session['user']['userid'])
 
         #pop session variables, logging the user out of the session
         session.pop('user', None)
@@ -192,7 +208,7 @@ def signup():
             print("Valid.")
 
             #add to database
-            A = model.Accessor.Accessor("model/test_database.db")
+            A = model.Accessor.Accessor(database)
             A.AddUser(email,username,password)
 
             return render_template('success.html', userdata = data)
