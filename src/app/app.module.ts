@@ -1,16 +1,34 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
+import { ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { LoginComponent } from './login/login.component';
+import { RouterModule, Routes} from '@angular/router';
+import { GraphComponent } from './graph/graph.component';
+
+const appRoutes: Routes = [
+  {path: '',
+   component: LoginComponent},
+  {path: 'graph',
+   component: GraphComponent},
+];
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    LoginComponent,
+    GraphComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    HttpClientModule,
+    AppRoutingModule,
+    ReactiveFormsModule,
+    RouterModule.forRoot(appRoutes)
   ],
   providers: [],
   bootstrap: [AppComponent]

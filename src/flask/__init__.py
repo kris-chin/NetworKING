@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, session, redirect
 import model.Accessor, model.Graph, model.Graph_Meta, User
+from flask_cors import CORS
 
 app = Flask(__name__) #our app is a new Flask instance
+CORS(app) #allows for cross-origin resource sharing (angular to flask)
 app.secret_key = 'secret key' #used for sessions
 database = "model/test_database.db"
 
@@ -17,10 +19,10 @@ def index():
 @app.route('/graph', methods=['GET', 'POST'])
 def graph():
     if request.method == 'POST': #called on log-in specifically.
-        
+        #print(request.json)
         #access the respective data based on the inputted userid
-        username = request.form['user']
-        password = request.form['pass']
+        username = request.json['user_or_email']
+        password = request.json['pass']
 
         A = model.Accessor.Accessor(database)
         try:
@@ -54,7 +56,7 @@ def graph():
         session['user'] = user
         session['graph'] = G.json()
 
-        return render_template('graph.html', title ='THE GANG 2', user=user, graph = G.json())
+        return {'user': session['user'], 'graph': session['graph']}
     else:
         if 'user' in session: #if the user is already logged in on the client
             user = session['user']
