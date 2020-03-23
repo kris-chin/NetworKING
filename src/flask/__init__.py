@@ -1,35 +1,47 @@
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, request, session, jsonify
 import model.Accessor, model.Graph, model.Graph_Meta, User
 from flask_cors import CORS
+from flask_session import Session
 
 app = Flask(__name__) #our app is a new Flask instance
-CORS(app) #allows for cross-origin resource sharing (angular to flask)
-app.secret_key = 'secret key' #used for sessions
 database = "model/test_database.db"
+
+SECRET_KEY = "secret key" #used for sessions
+SESSION_TYPE = "filesystem"
+PERMANENT_SESSION_LIFETYPE = 0.8
+app.config.from_object(__name__)
+Session(app)
+CORS(app, supports_credentials=True)#allows for cross-origin resource sharing (angular to flask)
 
 #the @ symbol is a decorator in python
 @app.route('/') #by decorating route() with ('/'), it binds any following functions with the '/' URL
 def index():
     if 'user' in session: #if a user is logged in client-wise
         print("A user is logged into the session. Redirecting...")
-        return redirect('/graph')
+        #return redirect('/graph')
     else: #if no one is logged in
-        return render_template('index.html', invalid = False)
+        print('not logged in a session')
+        #return render_template('index.html', invalid = False)
 
 @app.route('/graph', methods=['GET', 'POST'])
 def graph():
     if request.method == 'POST': #called on log-in specifically.
-        #print(request.json)
+
         #access the respective data based on the inputted userid
         username = request.json['user_or_email']
         password = request.json['pass']
+
+        if 'user' in session: #if a user is logged in client-wise
+            print("POST: A user is logged into the session.")
+        else:
+            print("POST: No user in session")
 
         A = model.Accessor.Accessor(database)
         try:
             id = int(A.FindUserID(username,password))
         except:
             print("NO USER FOUND")
-            return render_template('index.html', invalid = True)
+            return {'success': False}
         print("USER " + username + " FOUND. Loading...")
 
         #create respective lists of objects from db data
@@ -49,22 +61,30 @@ def graph():
 
         #create Graph from db data
         G = model.Graph.Graph(vertices,edges,classifications)
-
         user = {'userid': id, 'username' : username}
-
+        
         #save session variables for the user and the graph, these are basically secure cookies
         session['user'] = user
         session['graph'] = G.json()
+        print(session)
+        print(session.sid)
+        print(request.cookies)
 
-        return {'user': session['user'], 'graph': session['graph']}
+        response = {'success': True, 'user': session['user'], 'graph': session['graph']}
+
+        return response
     else:
+        print(session)
+        print(session.sid)
+        print(request.cookies)
         if 'user' in session: #if the user is already logged in on the client
+            print("GET: A user is in the session.")
             user = session['user']
             graph = session['graph']
+            return {'success': True, 'user': session['user'], 'graph': session['graph']}
         else: #if no user is logged in 
-            user = {'userid': '-1', 'username' : 'dog'} #this is a json
-            graph = {'classifications' : [], 'vertices': [], 'edges' : []}
-        return render_template('graph.html', title='THE GANG', user=user, graph = graph)
+            print("GET: A user is not in the session.")
+            return {'success': False}
 
 @app.route('/graph/update', methods = ['POST'])
 def Action():
@@ -177,7 +197,7 @@ def Action():
     #update session values
     session['graph'] = g.json()
     
-    return render_template('graph.html', title ='THE GANG 2', user = session['user'], graph = session['graph'])
+    #return render_template('graph.html', title ='THE GANG 2', user = session['user'], graph = session['graph'])
 
 @app.route('/signup', methods = ['GET', 'POST'])
 def signup():
@@ -185,7 +205,7 @@ def signup():
         email = ""; username = ""; password = ""
         data = {'email':email , 'username': username, 'password':password}
 
-        return render_template('signup.html', invalid = False, userdata = data)
+        #return render_template('signup.html', invalid = False, userdata = data)
     else:
         email = request.form['email']
         username = request.form['user']
@@ -194,7 +214,8 @@ def signup():
         data = {'email':email , 'username': username, 'password':password}
 
         if (username == "" or password == "" or email == ""):
-            return render_template('signup.html', invalid = True, userdata = data)
+            print("invalid")
+            #return render_template('signup.html', invalid = True, userdata = data)
         else:
             
             if (not (User.validEmail(email))): #if valid email
@@ -213,7 +234,7 @@ def signup():
             A = model.Accessor.Accessor(database)
             A.AddUser(email,username,password)
 
-            return render_template('success.html', userdata = data)
+            #return render_template('success.html', userdata = data)
 
 #this only runs if the file was run as a script
 if __name__ == '__main__':

@@ -1,1 +1,8 @@
-<p>graph works!</p>
+<div *ngIf="graphData !== undefined">
+    <div *ngIf="graphData.success == true">
+        <p>success</p>
+    </div>
+    <div *ngIf="graphData.success == false">
+        <p>You are not logged in.</p>
+    </div>
+</div>
