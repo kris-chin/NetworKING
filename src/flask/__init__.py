@@ -1,16 +1,11 @@
 from flask import Flask, request, session, jsonify
 import model.Accessor, model.Graph, model.Graph_Meta, User
 from flask_cors import CORS
-from flask_session import Session
 
 app = Flask(__name__) #our app is a new Flask instance
 database = "model/test_database.db"
 
 SECRET_KEY = "secret key" #used for sessions
-SESSION_TYPE = "filesystem"
-PERMANENT_SESSION_LIFETYPE = 0.8
-app.config.from_object(__name__)
-Session(app)
 CORS(app, supports_credentials=True)#allows for cross-origin resource sharing (angular to flask)
 
 #the @ symbol is a decorator in python
@@ -23,68 +18,59 @@ def index():
         print('not logged in a session')
         #return render_template('index.html', invalid = False)
 
-@app.route('/graph', methods=['GET', 'POST'])
+@app.route('/login', methods=['POST'])
+def login():
+    #returns 'success=true' if this is a valid login
+    #when a client recieves this success value, the client will set a cookie signifying that the user is properly logged in
+    username = request.json['user_or_email']
+    password = request.json['pass']
+
+    A = model.Accessor.Accessor(database)
+    try:
+        print("USER " + username + " FOUND.")
+        id = int(A.FindUserID(username,password))
+        #obviously not secure
+        return {'success': True, 'user_validated': username, 'pass_validated': password}
+    except:
+        print("NO USER FOUND")
+        return {'success': False}
+
+
+@app.route('/graph', methods=['POST'])
 def graph():
-    if request.method == 'POST': #called on log-in specifically.
 
-        #access the respective data based on the inputted userid
-        username = request.json['user_or_email']
-        password = request.json['pass']
+    #access the respective data based on the inputted userid
+    username = request.json['user_validated']
+    password = request.json['pass_validated']
 
-        if 'user' in session: #if a user is logged in client-wise
-            print("POST: A user is logged into the session.")
-        else:
-            print("POST: No user in session")
+    A = model.Accessor.Accessor(database)
+    try:
+        id = int(A.FindUserID(username,password))
+    except:
+        return {'success': False}
 
-        A = model.Accessor.Accessor(database)
-        try:
-            id = int(A.FindUserID(username,password))
-        except:
-            print("NO USER FOUND")
-            return {'success': False}
-        print("USER " + username + " FOUND. Loading...")
+    #create respective lists of objects from db data
+    classifications = []
+    for row in A.GetClassificationsData(id):
+        classifications.append(model.Graph.Classification(row[0], row[2], row[3]))
+    vertices = []
+    for row in A.GetVerticesData(id):
+        #get the respective classification based on the data in row[3]
+        c = model.Graph.FindClassification(classifications,row[3])
+        vertices.append(model.Graph.Vertex(row[0], row[2], c, row[4], row[5], row[6]))
+    edges = []
+    for row in A.GetEdgesData(id):
+        v1 = model.Graph.FindVertex(vertices, row[2])
+        v2 = model.Graph.FindVertex(vertices, row[3])
+        edges.append(model.Graph.Edge(row[0], (v1, v2), row[4], row[5], row[6]))
 
-        #create respective lists of objects from db data
-        classifications = []
-        for row in A.GetClassificationsData(id):
-            classifications.append(model.Graph.Classification(row[0], row[2], row[3]))
-        vertices = []
-        for row in A.GetVerticesData(id):
-            #get the respective classification based on the data in row[3]
-            c = model.Graph.FindClassification(classifications,row[3])
-            vertices.append(model.Graph.Vertex(row[0], row[2], c, row[4], row[5], row[6]))
-        edges = []
-        for row in A.GetEdgesData(id):
-            v1 = model.Graph.FindVertex(vertices, row[2])
-            v2 = model.Graph.FindVertex(vertices, row[3])
-            edges.append(model.Graph.Edge(row[0], (v1, v2), row[4], row[5], row[6]))
+    #create Graph from db data
+    G = model.Graph.Graph(vertices,edges,classifications)
+    user = {'userid': id, 'username' : username}
 
-        #create Graph from db data
-        G = model.Graph.Graph(vertices,edges,classifications)
-        user = {'userid': id, 'username' : username}
-        
-        #save session variables for the user and the graph, these are basically secure cookies
-        session['user'] = user
-        session['graph'] = G.json()
-        print(session)
-        print(session.sid)
-        print(request.cookies)
+    response = {'success': True, 'user': user, 'graph': G.json()}
 
-        response = {'success': True, 'user': session['user'], 'graph': session['graph']}
-
-        return response
-    else:
-        print(session)
-        print(session.sid)
-        print(request.cookies)
-        if 'user' in session: #if the user is already logged in on the client
-            print("GET: A user is in the session.")
-            user = session['user']
-            graph = session['graph']
-            return {'success': True, 'user': session['user'], 'graph': session['graph']}
-        else: #if no user is logged in 
-            print("GET: A user is not in the session.")
-            return {'success': False}
+    return response
 
 @app.route('/graph/update', methods = ['POST'])
 def Action():

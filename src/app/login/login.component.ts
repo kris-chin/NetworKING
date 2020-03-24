@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { UserService } from '../user.service';
 import { Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-login',
@@ -10,12 +11,12 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
   loginForm;
-  graphData; //move this
 
   constructor(
     private formBuilder : FormBuilder, 
     private user : UserService,
     private router : Router,
+    private cookieService: CookieService,
   ) { 
     this.loginForm = this.formBuilder.group({
       user_or_email: null,
@@ -29,21 +30,23 @@ export class LoginComponent implements OnInit {
 
   onSubmit(loginData){
     //submit a post request to the server, subscribe and wait for a response
-    this.user.establishSession(loginData)
+    let validationResponse;
+    this.user.login(loginData)
       .subscribe( //on post response
         (result) => {
-          this.graphData = result;
+          validationResponse = result;
         }
       ).add( //after post response
         () => {
-          if (this.graphData != undefined){
-            if (this.graphData.success == true){ //SUCCESSFUL LOGIN
-              console.log("Successfully logged in as \"" + this.graphData.user.username + "\"");
+          if (validationResponse != undefined){
+            if (validationResponse.success == true){ //SUCCESSFUL LOGIN
+              console.log("Successfully logged in as \"" + loginData.user_or_email + "\"");
               
-              //update the session's graph data
-              this.user.setData(this.graphData);
+              //set the login cookie so you don't have to constantly
+              this.cookieService.set('user_validated', validationResponse.user_validated)
+              this.cookieService.set('pass_validated', validationResponse.pass_validated)
+
               this.router.navigateByUrl('graph');
-              //graphdata variable is automatically cleared on navigation
 
             } else { //FAILED LOGIN
               console.log("Failed to log in: Invalid Credentials");
@@ -53,7 +56,6 @@ export class LoginComponent implements OnInit {
             console.log("Failed to log in: Undefined");
           
           }
-          console.log(this.graphData);
         }
       );
 
