@@ -1,0 +1,19 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <p>{%if (invalid == True)%}</p>
+            <p>Complete the values!</p>
+        <p>{%endif%}</p>
+
+        <p>Email:</p>
+        <form action='/signup' method = 'POST'>
+            <input type="text" name = "email" value = {{userdata.email}}>
+            <input type="text" name = "user" value = "{{userdata.username}}">
+            <input type="password" name = "pass" value = "{{userdata.password}}">
+
+            <input type="submit" value = "Sign Up!">
+        </form>
+    </body>
+</html>

@@ -1,3 +1,5 @@
 test.py
 test_database.db
 test_database_queries.sql
+database_debugger.py
+usersettings.json
