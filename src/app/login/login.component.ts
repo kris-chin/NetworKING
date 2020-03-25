@@ -11,6 +11,7 @@ import { CookieService } from 'ngx-cookie-service';
 })
 export class LoginComponent implements OnInit {
   loginForm;
+  signupForm;
 
   constructor(
     private formBuilder : FormBuilder, 
@@ -22,15 +23,20 @@ export class LoginComponent implements OnInit {
       user_or_email: null,
       pass: null
     });
+    this.signupForm = this.formBuilder.group({
+      email: null,
+      user: null,
+      pass: null
+    })
   }
 
   ngOnInit() {
 
   }
 
-  onSubmit(loginData){
+  loginSubmit(loginData){
     //submit a post request to the server, subscribe and wait for a response
-    let validationResponse;
+    let validationResponse = undefined;
     this.user.login(loginData)
       .subscribe( //on post response
         (result) => {
@@ -56,10 +62,37 @@ export class LoginComponent implements OnInit {
             console.log("Failed to log in: Undefined");
           
           }
+          this.loginForm.reset();
         }
       );
+  }
 
-    this.loginForm.reset();
+  signupSubmit(signupData){
+    //this validation response is the same as the loginSubmit
+    let validationResponse;
+    this.user.signup(signupData)
+      .subscribe(
+        (result) => {
+          validationResponse = result;
+        }
+      ).add(
+        () => {
+          if (validationResponse != undefined){
+            if (validationResponse.success == true){
+              console.log("Successfully signed up");
+              //also create cookies and automatically log in
+              this.cookieService.set('user_validated', validationResponse.user_validated)
+              this.cookieService.set('pass_validated', validationResponse.pass_validated)
+
+              this.router.navigateByUrl('graph');
+            } else {
+              console.log("Failed to Sign up (Server returned failure)");
+            }
+          } else {
+            console.log("Failed to Sign up (Response Undefined)");
+          }
+        }
+      )
   }
 
 }

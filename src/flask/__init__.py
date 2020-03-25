@@ -8,16 +8,6 @@ database = "model/test_database.db"
 SECRET_KEY = "secret key" #used for sessions
 CORS(app, supports_credentials=True)#allows for cross-origin resource sharing (angular to flask)
 
-#the @ symbol is a decorator in python
-@app.route('/') #by decorating route() with ('/'), it binds any following functions with the '/' URL
-def index():
-    if 'user' in session: #if a user is logged in client-wise
-        print("A user is logged into the session. Redirecting...")
-        #return redirect('/graph')
-    else: #if no one is logged in
-        print('not logged in a session')
-        #return render_template('index.html', invalid = False)
-
 @app.route('/login', methods=['POST'])
 def login():
     #returns 'success=true' if this is a valid login
@@ -34,7 +24,6 @@ def login():
     except:
         print("NO USER FOUND")
         return {'success': False}
-
 
 @app.route('/graph', methods=['POST'])
 def graph():
@@ -185,42 +174,38 @@ def Action():
     
     #return render_template('graph.html', title ='THE GANG 2', user = session['user'], graph = session['graph'])
 
-@app.route('/signup', methods = ['GET', 'POST'])
+@app.route('/signup', methods = ['POST'])
 def signup():
-    if request.method == 'GET':
-        email = ""; username = ""; password = ""
-        data = {'email':email , 'username': username, 'password':password}
-
-        #return render_template('signup.html', invalid = False, userdata = data)
-    else:
-        email = request.form['email']
-        username = request.form['user']
-        password = request.form['pass']
-
-        data = {'email':email , 'username': username, 'password':password}
+        email = request.json['email']
+        username = request.json['user']
+        password = request.json['pass']
 
         if (username == "" or password == "" or email == ""):
-            print("invalid")
-            #return render_template('signup.html', invalid = True, userdata = data)
+            response = {'success': False}
+            return response
         else:
-            
             if (not (User.validEmail(email))): #if valid email
                 print("Email is used")
-                return render_template('signup.html', invalid = True, userdata = data)
+                response = {'success': False}
+                return response
             elif (not (User.validUser(username))): #if user 
                 print("username is taken")
-                return render_template('signup.html', invalid = True, userdata = data)
+                response = {'success': False}
+                return response
             elif (not (User.validPassword(password))):
                 print("password is invalid")
-                return render_template('signup.html', invalid = True, userdata = data)
-            
+                response = {'success': False}
+                return response
             print("Valid.")
 
             #add to database
             A = model.Accessor.Accessor(database)
             A.AddUser(email,username,password)
 
-            #return render_template('success.html', userdata = data)
+            response = {'success': True, 'user_validated': username, 'pass_validated': password}
+
+            return response
+            
 
 #this only runs if the file was run as a script
 if __name__ == '__main__':

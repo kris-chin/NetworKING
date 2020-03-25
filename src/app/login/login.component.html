@@ -1,14 +1,29 @@
 <div>
-    <p>Login:</p>
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit(loginForm.value)">
-        <label for="user_or_email">
-            Email/Username
-        </label>
+    <p>Welcome to NetworKING!</p>
+</div>
+
+<div id="LoginBox">
+    <form [formGroup]="loginForm" (ngSubmit)="loginSubmit(loginForm.value)">
+        <label for="user_or_email">Email/Username</label>
         <input type="text" formControlName = "user_or_email">
-        <label for="pass">
-            Password
-        </label>
+        <label for="pass">Password</label>
         <input type="password" formControlName = "pass">
         <button type="submit">Log In</button>
+    </form>
+</div>
+
+<div>
+    <p>Alternatively, Sign up!</p>
+</div>
+
+<div id = "SignupBox">
+    <form [formGroup]="signupForm" (ngSubmit)="signupSubmit(signupForm.value)">
+        <label for="email">Email</label>
+        <input type="text" formControlName = "email">
+        <label for="user">Username</label>
+        <input type="text" formControlName = "user">
+        <label for="pass">Password</label>
+        <input type="password" formControlName = "pass">
+        <button type="submit">Sign Up</button>
     </form>
 </div>

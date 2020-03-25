@@ -35,7 +35,10 @@ export class GraphComponent implements OnInit {
         () => {
           if (this.graphData != undefined){
             if (this.graphData.success == true){
+
+              //GRAPH
               console.log("Valid Login Data. Graph Data Retrieved")
+
             } else {
               console.warn("Invalid Login Data.");
             }
