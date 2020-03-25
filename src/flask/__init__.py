@@ -62,117 +62,28 @@ def graph():
     return response
 
 @app.route('/graph/update', methods = ['POST'])
-def Action():
-    #get action button clicked
-    action = request.form['action']
-    print("Action: " + str(action))
+def Update():
+    #updates the database with the request's graph object
     try:
-        id = int(request.form['id'])
+        id = int(request.json['user']['userid'])
     except:
         id = None
     print("ID: " + str(id))
 
-    #get the graph object for the current session
-    g = model.Graph.dejson(session['graph'])
-
-    if (action == 'Add Class'):
-        input_name = request.form['classification_name']
-        input_color = request.form['classification_color']
-        input_id = model.Graph.HighestID(g.classifications) + 1
-
-        if (input_name == '' or input_color ==''):
-            print("Error: Incomplete input")
-        else:
-            g.AddClass(model.Graph.Classification(input_id, input_name, input_color))
-
-    elif (action == 'Edit Class'):
-        input_name = request.form['classification_name']
-        input_color = request.form['classification_color']
-        g.UpdateClassification(id, input_name, input_color)
-
-    elif (action == 'Delete Class'):
-        g.RemoveClassification(id)
-
-    elif (action == 'Add Vertex'):
-        input_name = request.form['vertex_name']
-        input_type_id = request.form['vertex_type'] #STRING OF TYPE, NEEDS CONVERSION
-        input_type = model.Graph.FindClassificationByID(g.classifications,int(input_type_id))
-        
-        input_health = request.form['vertex_health']
-        #input_shape = request.form['vertex_shape']
-        input_shape = 'o'
-        input_notes = request.form['vertex_notes']
-
-        input_id = model.Graph.HighestID(g.vertices) + 1
-
-        if (input_name == '' or input_type == None):
-            print("Error: Empty or Invalid Input for Adding Vertex")
-        else:
-            g.AddVertex(model.Graph.Vertex(input_id,input_name,input_type,input_health,input_shape,input_notes))
-
-    elif (action == 'Edit Vertex'):
-        input_name = request.form['vertex_name']
-        input_type_id = request.form['vertex_type'] #STRING OF TYPE ID
-        input_type = model.Graph.FindClassificationByID(g.classifications,int(input_type_id))
-        input_health = request.form['vertex_health']
-        #input_shape = request.form['vertex_shape'] 
-        input_shape = 'o'
-        input_notes = request.form['vertex_notes']
-        
-        g.UpdateVertex(id, input_name, input_type, input_health, input_shape, input_notes)
-
-    elif (action == 'Add Neighbor'):
-        input_neighbor_id = request.form['vertex_addNeighbor'] #ID OF NEIGHBOR
-        input_neighbor = model.Graph.FindVertexByID(g.vertices, int(input_neighbor_id))
-        #input_color
-        #input_size
-        #input_style
-
-        input_id = model.Graph.HighestID(g.edges) + 1
-        input_vertex = model.Graph.FindVertexByID(g.vertices, id)
-
-        if (input_neighbor == None):
-            print("Error: Neighbor is invalid")
-        elif (input_neighbor in g.GetNeighbors(input_vertex) ):
-            print("Error: Vertices are already neighbors")
-        else:
-            g.AddEdge(model.Graph.Edge(input_id, (input_vertex, input_neighbor)) )
-
-    elif (action == 'Delete Vertex'):
-        g.RemoveVertex(id)
-
-    elif (action == 'Edit Edge'):
-        #input_color = request.form['edge_color'] #this is a color value
-        input_color = 'Black'
-        input_size = request.form['edge_size']
-        #input_style = request.form['edge_style']
-        input_style = 'solid'
-
-        g.UpdateEdge(id, input_color, input_size, input_style)
-
-    elif (action == 'Delete Edge'):
-        g.RemoveEdge(id)
-
-    elif (action == 'Edit User Settings'):
-        print("EUS")
-
-    elif (action == 'Log Out'):
-        #note: not secure, if id is modified then you can edit the values of other id's graphs
-        A = model.Accessor.Accessor(database)
-        A.SetAllData(g,int(session['user']['userid']))
-        #print(session['user']['userid'])
-
-        #pop session variables, logging the user out of the session
-        session.pop('user', None)
-        session.pop('graph', None)
-        return redirect('/') #go back to regular
-    else:
-        print('INVALID ACTION: \"' + action + "\'")
-
-    #update session values
-    session['graph'] = g.json()
+    #get the response graph object
+    g = model.Graph.dejson(request.json['graph'])
+    A = model.Accessor.Accessor(database)
     
-    #return render_template('graph.html', title ='THE GANG 2', user = session['user'], graph = session['graph'])
+    #update the database based on the inputted graph object
+    #THE FOLLOWING LINE IS NOT SECURE!!!
+    result = A.SetAllData(g,id)
+
+    if (result == True):
+        print('Successfully updated DB')
+        return {'success': True}
+    else:
+        print('Failed to update DB')
+        return {'success': False}
 
 @app.route('/signup', methods = ['POST'])
 def signup():

@@ -41,6 +41,8 @@ export class GraphComponent implements OnInit {
 
             } else {
               console.warn("Invalid Login Data.");
+              //redirect
+              this.router.navigateByUrl('');
             }
           } else {
             console.warn("Undefined Login Data (subscription fail?)");
@@ -49,15 +51,74 @@ export class GraphComponent implements OnInit {
       );
       
   }
+  
+  //updates the database with the current graphData
+  updateDatabase(){
+    let updateResponse;
+    this.user.updateGraphData(this.graphData)
+      .subscribe(
+        (result) => {
+          updateResponse = result;
+        }
+      ).add(
+        () => {
+          if (updateResponse != undefined){
+            if (updateResponse.success == true){
+              console.log('Database was successfully updated with the client\'s current graphData');
+            } else {
+              console.log('UpdateResponse returned failure');
+            }
+          } else {
+            console.log('UpdateResponse returned undefined');
+          }
+        }
+      );
+  }
+
   //logs out by deleting the login cookie data and redirects back to the beginning
   //should move this to a different component later
   logout(){
+    //update db
+    this.updateDatabase();
+
     //deletes login cookies
     this.cookieService.delete('user_validated');
     this.cookieService.delete('pass_validated');
 
-    //rediret
+    //redirect
     this.router.navigateByUrl('');
+  }
+
+  //the following are simple actions to modify the graph
+  AddVertex(n){
+    let vertices = this.graphData['graph']['vertices'];
+  }
+  DeleteVertex(n){
+
+  }
+  EditVertex(n){
+
+  }
+
+  AddEdge(e){
+    let edges = this.graphData['graph']['edges'];
+
+  }
+  DeleteEdge(e){
+
+  }
+  EditEdge(e){
+
+  }
+
+  AddClassification(c){
+    let classifications = this.graphData['graph']['classifications'];
+    
+  }
+  DeleteClassification(c){
+
+  }
+  EditClassification(c){
 
   }
 

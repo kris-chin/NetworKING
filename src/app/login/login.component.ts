@@ -31,6 +31,11 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
+    let cookieData = {'user_validated': this.cookieService.get('user_validated'), 'pass_validated' : this.cookieService.get('pass_validated')};
+    //autoredirect if there are logincookies
+    if (cookieData.user_validated != '' && cookieData.pass_validated != '') {
+      this.router.navigateByUrl('graph');
+    }
 
   }
 
@@ -92,7 +97,7 @@ export class LoginComponent implements OnInit {
             console.log("Failed to Sign up (Response Undefined)");
           }
         }
-      )
+      );
   }
 
 }

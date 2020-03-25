@@ -110,6 +110,7 @@ class Accessor:
                     ''', (userid, cl.name, cl.color, cl.count, )
                 )
         self.conn.commit()
+        return True
 
     def GetEdgesData(self,userid):
         #Returns a list of Row data for Edges (Needs cleaning)
@@ -150,6 +151,7 @@ class Accessor:
                     ''', (userid, edge.vertices[0].name, edge.vertices[1].name, edge.color, edge.size, edge.style)
                 )
         self.conn.commit()
+        return True
 
     def GetVerticesData(self,userid):
         #Returns a list of Row data for Vertices (Needs cleaning)
@@ -191,6 +193,7 @@ class Accessor:
                     ''', (userid, v.name, v.type.name, v.health, v.shape, v.notes, )
                 )
         self.conn.commit()
+        return True
 
     def GetUserData(self,userid):
         #Returns a list of Row data for User Settings (Needs cleaning)
@@ -237,6 +240,7 @@ class Accessor:
             print("user n/a")
             #we can't update settings, since the user doesn't exist. we need the user to sign in
         self.conn.commit()
+        return True
 
     #finds a userid using a provided username and pass (extremely unsecure. remember to change)
     def FindUserID(self,user,password):
@@ -256,10 +260,15 @@ class Accessor:
             return None
 
     def SetAllData(self,graph,userid):
-        self.SetClassificationsData(graph,userid)
-        self.SetEdgesData(graph,userid)
-        self.SetVerticesData(graph,userid)
+        #returns true if successfully set database data
+        classificationCheck = self.SetClassificationsData(graph,userid)
+        edgeCheck = self.SetEdgesData(graph,userid)
+        vertexCheck = self.SetVerticesData(graph,userid)
         #self.SetUserData(graph,userid,settings_file)
+        if (classificationCheck == True and edgeCheck == True and vertexCheck == True):
+            return True
+        else:
+            return False
 
     def GenerateUserID(self):
         self.c.execute('''

@@ -25,4 +25,9 @@ export class UserService {
     //called using data recieved from cookies created from the validated login data
     return this.http.post<any>('http://127.0.0.1:5000/graph', validatedLoginData);
   }
+
+  updateGraphData(updateData){
+    //this needs to eventually include validated data, this is not secure.
+    return this.http.post<any>('http://127.0.0.1:5000/graph/update', updateData);
+  }
 }

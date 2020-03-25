@@ -1,6 +1,28 @@
 <div *ngIf="graphData !== undefined">
     <div *ngIf="graphData.success == true">
-        <p>success. you are {{graphData.user.username}}</p>
+        <p>YO, {{graphData.user.username}}</p>
+        
+        <div id = "classifications">
+            <div *ngFor="let c of graphData.graph.classifications" style="display:inline-block;">
+                <p>{{c.name}}</p>
+                <p>hi</p>
+            </div>
+        </div>
+
+        <div id = "vertices">
+            <div *ngFor="let v of graphData.graph.vertices" style = "display:inline-block">
+                <p>{{v.name}}</p>
+                <p>hi</p>
+            </div>
+        </div>
+
+        <div id = "edges">
+            <div *ngFor="let e of graphData.graph.edges" style = "display:inline-block;">
+                <p>{{e.name}}</p>
+                <p>hi</p>
+            </div>
+        </div>
+
         <button (click)="logout()">Log Out</button>
     </div>
     <div *ngIf="graphData.success == false">
