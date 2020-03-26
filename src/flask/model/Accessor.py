@@ -14,10 +14,11 @@ class Accessor:
         #Create "nodes" table
         self.c.execute('''
             CREATE TABLE IF NOT EXISTS nodes
-                (id INTEGER NOT NULL PRIMARY KEY,
+                (id INTEGER NOT NULL,
                 userid INTEGER,
                 name TEXT,
                 classification TEXT,
+                classification_id INTEGER,
                 health INTEGER,
                 shape TEXT,
                 notes TEXT
@@ -26,10 +27,12 @@ class Accessor:
         #Create "edges" table
         self.c.execute('''
             CREATE TABLE IF NOT EXISTS edges
-                (id INTEGER NOT NULL PRIMARY KEY,
+                (id INTEGER NOT NULL,
                 userid INTEGER,
                 vertex1 TEXT,
+                vertex1_id INTEGER,
                 vertex2 TEXT,
+                vertex2_id INTEGER,
                 color TEXT,
                 size INTEGER,
                 style TEXT)
@@ -37,7 +40,7 @@ class Accessor:
         #Create "classifications" table
         self.c.execute('''
             CREATE TABLE IF NOT EXISTS classifications
-                (id INTEGER NOT NULL PRIMARY KEY,
+                (id INTEGER NOT NULL,
                 userid INTEGER,
                 name TEXT,
                 color TEXT,
@@ -46,7 +49,7 @@ class Accessor:
         #Create a "userbase" table (be careful!!!)
         self.c.execute('''
             CREATE TABLE IF NOT EXISTS userbase
-            (id INTEGER NOT NULL PRIMARY KEY,
+            (id INTEGER NOT NULL,
             userid INTEGER,
             email TEXT,
             username TEXT,
@@ -105,9 +108,9 @@ class Accessor:
             else:
                 #if classification doesn't exist in table
                 self.c.execute('''
-                    INSERT INTO classifications (userid, name, color, count)
-                    VALUES (?, ?, ?, ?)
-                    ''', (userid, cl.name, cl.color, cl.count, )
+                    INSERT INTO classifications (id, userid, name, color, count)
+                    VALUES (?, ?, ?, ?, ?)
+                    ''', (cl.id, userid, cl.name, cl.color, cl.count, )
                 )
         self.conn.commit()
         return True
@@ -138,17 +141,17 @@ class Accessor:
                 #if edge exists in table
                 self.c.execute('''
                     UPDATE edges
-                    SET vertex1 = ?, vertex2 = ?, color = ?, size = ?, style = ?
+                    SET vertex1 = ?, vertex1_id = ?, vertex2 = ?, vertex2_id = ?, color = ?, size = ?, style = ?
                     WHERE (id = ? AND userid = ?)
-                    ''', (edge.vertices[0].name, edge.vertices[1].name, edge.color, edge.size, edge.style, edge.id, userid,  )
+                    ''', (edge.vertices[0].name, edge.vertices[0].id, edge.vertices[1].name, edge.vertices[1].id, edge.color, edge.size, edge.style, edge.id, userid,  )
                 )
 
             else:
                 #if edges doesn't exist in table
                 self.c.execute('''
-                    INSERT INTO edges (userid, vertex1, vertex2, color, size, style)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    ''', (userid, edge.vertices[0].name, edge.vertices[1].name, edge.color, edge.size, edge.style)
+                    INSERT INTO edges (id, userid, vertex1, vertex1_id, vertex2, vertex2_id, color, size, style)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', (edge.id, userid, edge.vertices[0].name, edge.vertices[0].id, edge.vertices[1].name,  edge.vertices[1].id, edge.color, edge.size, edge.style)
                 )
         self.conn.commit()
         return True
@@ -180,17 +183,17 @@ class Accessor:
                 #if vertex exists in table
                 self.c.execute('''
                     UPDATE nodes
-                    SET name = ?, classification = ?, health = ?, shape = ?, notes = ?
+                    SET name = ?, classification = ?, classification_id = ?, health = ?, shape = ?, notes = ?
                     WHERE (id = ? AND userid = ?)
-                    ''', (v.name, v.type.name, v.health, v.shape, v.notes, v.id, userid, )
+                    ''', (v.name, v.type.name, v.type_id, v.health, v.shape, v.notes, v.id, userid, )
                 )
 
             else:
                 #if vertex doesn't exist in table
                 self.c.execute('''
-                    INSERT INTO nodes (userid, name, classification, health, shape, notes)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    ''', (userid, v.name, v.type.name, v.health, v.shape, v.notes, )
+                    INSERT INTO nodes (id, userid, name, classification, classification_id, health, shape, notes)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', (v.id, userid, v.name, v.type.name, v.type.id, v.health, v.shape, v.notes, )
                 )
         self.conn.commit()
         return True

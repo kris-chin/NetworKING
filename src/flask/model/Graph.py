@@ -61,6 +61,7 @@ class Vertex:
             'id' : self.id,
             'name' : self.GetName(),
             'type' : self.type.GetName(),
+            'type_id' : self.type.id,
             'health' : self.health,
             'shape' : self.shape,
             'notes' : self.notes
@@ -97,7 +98,9 @@ class Edge:
             'id' : self.id,
             'name' : self.GetName(),
             'vertex1' : self.vertices[0].GetName(),
+            'vertex1_id' : self.vertices[0].id,
             'vertex2' : self.vertices[1].GetName(),
+            'vertex2_id' : self.vertices[1].id,
             'color' : self.color,
             'size' : self.size,
             'style' : self.style
@@ -207,11 +210,11 @@ def dejson(json_input):
         except: print("ignoring dejsonification of invalid class")
     vertices = []
     for v in json_input['vertices']:
-        try: vertices.append(Vertex(int(v['id']), v['name'], FindClassification(classifications,v['type']), int(v['health']), v['shape'], v['notes']))
+        try: vertices.append(Vertex(int(v['id']), v['name'], FindClassificationByID(classifications,v['type_id']), int(v['health']), v['shape'], v['notes']))
         except: print("ignoring dejsonification of invalid vertex")
     edges = []
     for e in json_input['edges']:
-        try: edges.append(Edge(int(e['id']), (FindVertex(vertices,e['vertex1']), FindVertex(vertices,e['vertex2'])), e['color'], int(e['size']), e['style']))
+        try: edges.append(Edge(int(e['id']), (FindVertexByID(vertices,e['vertex1_id']), FindVertexByID(vertices,e['vertex2_id'])), e['color'], int(e['size']), e['style']))
         except: print("ignore dejsonification of invalid edge")
     return Graph(vertices,edges,classifications)
 
