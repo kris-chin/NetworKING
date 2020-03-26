@@ -45,13 +45,13 @@ def graph():
     vertices = []
     for row in A.GetVerticesData(id):
         #get the respective classification based on the data in row[3]
-        c = model.Graph.FindClassification(classifications,row[3])
-        vertices.append(model.Graph.Vertex(row[0], row[2], c, row[4], row[5], row[6]))
+        c = model.Graph.FindClassificationByID(classifications,row[4])
+        vertices.append(model.Graph.Vertex(row[0], row[2], c, row[5], row[6], row[7]))
     edges = []
     for row in A.GetEdgesData(id):
-        v1 = model.Graph.FindVertex(vertices, row[2])
-        v2 = model.Graph.FindVertex(vertices, row[3])
-        edges.append(model.Graph.Edge(row[0], (v1, v2), row[4], row[5], row[6]))
+        v1 = model.Graph.FindVertexByID(vertices, row[3])
+        v2 = model.Graph.FindVertexByID(vertices, row[5])
+        edges.append(model.Graph.Edge(row[0], (v1, v2), row[6], row[7], row[8]))
 
     #create Graph from db data
     G = model.Graph.Graph(vertices,edges,classifications)
