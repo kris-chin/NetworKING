@@ -185,7 +185,7 @@ class Accessor:
                     UPDATE nodes
                     SET name = ?, classification = ?, classification_id = ?, health = ?, shape = ?, notes = ?
                     WHERE (id = ? AND userid = ?)
-                    ''', (v.name, v.type.name, v.type_id, v.health, v.shape, v.notes, v.id, userid, )
+                    ''', (v.name, v.type.name, v.type.id, v.health, v.shape, v.notes, v.id, userid, )
                 )
 
             else:

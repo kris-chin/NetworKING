@@ -11,6 +11,7 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { RouterModule, Routes} from '@angular/router';
 import { GraphComponent } from './graph/graph.component';
+import { GraphFormComponent } from './graph/graph-form/graph-form.component';
 
 const appRoutes: Routes = [
   {path: '',
@@ -23,7 +24,8 @@ const appRoutes: Routes = [
   declarations: [
     AppComponent,
     LoginComponent,
-    GraphComponent
+    GraphComponent,
+    GraphFormComponent
   ],
   imports: [
     BrowserModule,

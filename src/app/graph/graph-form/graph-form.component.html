@@ -1,0 +1,83 @@
+<div *ngIf = "formType == 'classForm'">
+    <div *ngIf = "action == 'AddClass'">
+        <form [formGroup]= "classForm" (ngSubmit)="AddClassification(classForm.value)">
+            <label for="name">Name</label><input type ="text" formControlName = "name">
+            <label for="color">Color</label><input type ="text" formControlName = "color">
+            <button type = "Submit">Confirm</button>
+        </form>
+    </div>
+
+    <div *ngIf = "action == 'EditClass'">
+        <form [formGroup]= "classForm" (ngSubmit)="EditClassification(classForm.value)">
+            <label for="name">Name</label><input type ="text" formControlName = "name">
+            <label for="color">Color</label><input type ="text" formControlName = "color">
+            <button type = "Submit">Confirm</button>
+        </form>
+    </div>
+
+    <div *ngIf = "action == 'DeleteClass'">
+        <form [formGroup]= "classForm" (ngSubmit)="DeleteClassification(classForm.value)">
+            <button type = "Submit">Confirm</button>
+        </form>
+    </div>
+</div>
+
+<div *ngIf = "formType == 'vertexForm'">
+    <div *ngIf = "action == 'AddVertex'">
+        <form [formGroup]= "vertexForm" (ngSubmit)="AddVertex(vertexForm.value)">
+            <label for="name">Name</label><input type ="text" formControlName = "name">
+            <label for="type">Type</label><input type ="text" formControlName = "type">
+            <label for ="health">Health</label><input type = "number" formControlName = "health">
+            <label for="shape">Shape</label><input type = "text" formControlName = "shape">
+            <label for="notes">Notes</label><input type = "text" formControlName = "notes">
+            <button type = "Submit">Confirm</button>
+        </form>
+    </div>
+
+    <div *ngIf = "action == 'EditVertex'">
+        <form [formGroup]= "vertexForm" (ngSubmit)="EditVertex(vertexForm.value)">
+            <label for="name">Name</label><input type ="text" formControlName = "name">
+            <label for="type">Type</label><input type ="text" formControlName = "type">
+            <label for ="health">Health</label><input type = "number" formControlName = "health">
+            <label for="shape">Shape</label><input type = "text" formControlName = "shape">
+            <label for="notes">Notes</label><input type = "text" formControlName = "notes">
+            <button type = "Submit">Confirm</button>
+        </form>
+    </div>
+
+    <div *ngIf = "action == 'DeleteVertex'">
+        <form [formGroup]= "vertexForm" (ngSubmit)="DeleteVertex(vertexForm.value)">
+            <button type = "Submit">Confirm</button>
+        </form>
+    </div>
+</div>
+
+<div *ngIf = "formType == 'edgeForm'">
+    <div *ngIf = "action == 'AddNeighbor'">
+        <form [formGroup]= "edgeForm" (ngSubmit)="AddEdge(edgeForm.value)">
+            <label for="vertex1_id">Vertex1</label><input type ="text" formControlName = "vertex1_id">
+            <label for="vertex2_id">Vertex2</label><input type ="text" formControlName = "vertex2_id">
+            <label for="color">Color</label><input type = "color" formControlName = "color">
+            <label for="size">Size</label><input type = "text" formControlName = "size">
+            <label for ="style">Style</label><input type = "style" formControlName = "style">
+            <button type = "Submit">Confirm</button>
+        </form>
+    </div>
+
+    <div *ngIf = "action == 'EditEdge'">
+        <form [formGroup]= "edgeForm" (ngSubmit)="EditEdge(edgeForm.value)">
+            <label for="vertex1_id">Vertex1</label><input type ="text" formControlName = "vertex1_id">
+            <label for="vertex2_id">Vertex2</label><input type ="text" formControlName = "vertex2_id">
+            <label for="color">Color</label><input type = "color" formControlName = "color">
+            <label for="size">Size</label><input type = "text" formControlName = "size">
+            <label for ="style">Style</label><input type = "style" formControlName = "style">
+            <button type = "Submit">Confirm</button>
+        </form>
+    </div>
+
+    <div *ngIf = "action == 'DeleteEdge'">
+        <form [formGroup]= "edgeForm" (ngSubmit)="DeleteEdge(edgeForm.value)">
+            <button type = "Submit">Confirm</button>
+        </form>
+    </div>
+</div>
