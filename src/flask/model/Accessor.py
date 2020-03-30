@@ -88,6 +88,13 @@ class Accessor:
 
     def SetClassificationsData(self,graph,userid):
         #update the classifcation data for the given userid based on the inputted graph object
+        #delete any existing clases incase some were deleted
+        self.c.execute('''
+            DELETE from classifications
+            WHERE (userid = ?)
+        ''', (userid, )
+        )
+        
         for cl in graph.classifications:
             #Check if classification exists
             self.c.execute('''
@@ -129,6 +136,13 @@ class Accessor:
 
     def SetEdgesData(self,graph,userid):
         #update the edges data for the given userid based on the inputted graph object
+        #delete any existing edges incase some were deleted
+        self.c.execute('''
+            DELETE from edges
+            WHERE (userid = ?)
+        ''', (userid, )
+        )
+        
         for edge in graph.edges:
             #Check if edge exists
             self.c.execute('''
@@ -171,6 +185,14 @@ class Accessor:
 
     def SetVerticesData(self,graph,userid):
         #update the vertices data for the given userid based on the inputted graph object
+
+        #clear the original vertices first (in case there are deleted vertices)
+        self.c.execute('''
+            DELETE FROM nodes
+            WHERE (userid = ?)
+            ''', (userid, )
+        )
+        
         for v in graph.vertices:
             #Check if vertex exists
             self.c.execute('''

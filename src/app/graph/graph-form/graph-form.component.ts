@@ -12,6 +12,7 @@ export class GraphFormComponent implements OnInit {
   @Input() id : any;
   @Input() action : any;
   vertexForm; classForm; edgeForm;
+  graphData;
 
   constructor(
     private formBuilder : FormBuilder,
@@ -19,31 +20,36 @@ export class GraphFormComponent implements OnInit {
   ) {
     this.vertexForm = this.formBuilder.group({ //used in modifying the graphData
       id : null,
-      name : null,
+      name : '',
       type : null,
       type_id : null,
-      health : null,
-      shape : null,
+      health : 1,
+      shape : 'o',
       neighbors : null, //this is saved in graphComponent and not a form Option
-      notes : null
+      notes : ''
     });
     this.classForm = this.formBuilder.group({ //used in modifying the graphData
       id : null,
-      name : null,
-      color : null,
-      count : null
+      name : '',
+      color : 'black',
+      count : 0
     });
     this.edgeForm = this.formBuilder.group({ //used in modifying the graphData
       id : null,
-      name : null,
+      name : '',
       vertex1 : null,
       vertex1_id : null,
       vertex2 : null,
       vertex2_id : null,
-      color : null,
-      size : null,
-      style : null
+      color : 'Black',
+      size : 1,
+      style : 'solid'
     });
+  }
+
+  //used in type dropdown for adding/changing a vertex
+  changeType(t){
+    this.vertexForm['type_id'].setValue(t.id, {onlySelf: true});
   }
 
   ngOnInit() {
@@ -57,12 +63,19 @@ export class GraphFormComponent implements OnInit {
     } else if (this.action == 'EditEdge'){
       let eList = this.graphService.graphData['graph']['edges'];
       this.edgeForm.setValue(this.graphService.FindEdge(eList,this.id));
-    }
+    } 
+
+    this.graphData = this.graphService.graphData;
   }
 
   AddClassification(cData){
     cData['id'] = this.graphService.HighestID(this.graphService.graphData['graph']['classifications']) + 1;
     this.graphService.AddClassification(cData);
+    this.classForm.reset({
+      name : '',
+      color : 'black',
+      count : 0
+    });
   }
   EditClassification(cData){
     cData['id'] = this.id;
@@ -75,6 +88,12 @@ export class GraphFormComponent implements OnInit {
   AddVertex(vData){
     vData['id'] = this.graphService.HighestID(this.graphService.graphData['graph']['vertices']) + 1; 
     this.graphService.AddVertex(vData);
+    this.vertexForm.reset({
+      name : '',
+      health : 1,
+      shape : 'o',
+      notes : ''
+    });
   }
   EditVertex(vData){
     vData['id'] = this.id;
@@ -85,8 +104,20 @@ export class GraphFormComponent implements OnInit {
 }
 
   AddEdge(eData){
+    if (this.action == 'AddNeighbor'){
+      let vList = this.graphData['graph']['vertices'];
+      eData['vertex1'] = this.graphService.FindVertex(vList, this.id)['name'];
+      eData['vertex1_id'] = this.id;
+    }
+
     eData['id'] = this.graphService.HighestID(this.graphService.graphData['graph']['edges']) + 1;
     this.graphService.AddEdge(eData);
+    this.edgeForm.reset({
+      name : '',
+      color : 'Black',
+      size : 1,
+      style : 'solid'
+    });
   }
   EditEdge(eData){
     eData['id'] = this.id;

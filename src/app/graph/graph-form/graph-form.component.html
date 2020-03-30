@@ -26,7 +26,10 @@
     <div *ngIf = "action == 'AddVertex'">
         <form [formGroup]= "vertexForm" (ngSubmit)="AddVertex(vertexForm.value)">
             <label for="name">Name</label><input type ="text" formControlName = "name">
-            <label for="type">Type</label><input type ="text" formControlName = "type">
+            <label for="type">Type</label>
+            <select formControlName = "type_id">
+                <option *ngFor="let t of graphData.graph.classifications" [ngValue]="t.id" (change)="changeType($event)">{{t.name}}</option>
+            </select>
             <label for ="health">Health</label><input type = "number" formControlName = "health">
             <label for="shape">Shape</label><input type = "text" formControlName = "shape">
             <label for="notes">Notes</label><input type = "text" formControlName = "notes">
@@ -55,8 +58,10 @@
 <div *ngIf = "formType == 'edgeForm'">
     <div *ngIf = "action == 'AddNeighbor'">
         <form [formGroup]= "edgeForm" (ngSubmit)="AddEdge(edgeForm.value)">
-            <label for="vertex1_id">Vertex1</label><input type ="text" formControlName = "vertex1_id">
-            <label for="vertex2_id">Vertex2</label><input type ="text" formControlName = "vertex2_id">
+            <label for="vertex2_id">Vertex2</label>
+            <select formControlName = "vertex2_id">
+                <option *ngFor="let v of graphData.graph.vertices" [ngValue]="v.id" (change)="changeNeighbor($event)">{{v.name}}</option>
+            </select>
             <label for="color">Color</label><input type = "color" formControlName = "color">
             <label for="size">Size</label><input type = "text" formControlName = "size">
             <label for ="style">Style</label><input type = "style" formControlName = "style">
@@ -66,8 +71,15 @@
 
     <div *ngIf = "action == 'EditEdge'">
         <form [formGroup]= "edgeForm" (ngSubmit)="EditEdge(edgeForm.value)">
-            <label for="vertex1_id">Vertex1</label><input type ="text" formControlName = "vertex1_id">
-            <label for="vertex2_id">Vertex2</label><input type ="text" formControlName = "vertex2_id">
+            <label for="vertex1_id">Vertex1</label>
+            <select formControlName = "vertex1_id">
+                <option *ngFor="let v of graphData.graph.vertices" [ngValue]="v.id" (change)="changeNeighbor($event)">{{v.name}}</option>
+            </select>
+
+            <label for="vertex2_id">Vertex2</label>
+            <select formControlName = "vertex2_id">
+                <option *ngFor="let v of graphData.graph.vertices" [ngValue]="v.id" (change)="changeNeighbor($event)">{{v.name}}</option>
+            </select>
             <label for="color">Color</label><input type = "color" formControlName = "color">
             <label for="size">Size</label><input type = "text" formControlName = "size">
             <label for ="style">Style</label><input type = "style" formControlName = "style">

@@ -88,14 +88,22 @@ export class GraphService {
 
   //the following are simple actions to modify the graph
   AddVertex(vData){
-    //vData doesn't need id;
-    //vData MUST be in the form of a vertex object
-    let vertices = this.graphData['graph']['vertices'];
-    let newID = this.HighestID(vertices) + 1;
+    if (vData['type_id'] != null){
+      console.log(vData);
+      //convert type_id's name to the classification's id so it's properly added
+      vData['type'] = this.FindClassification(this.graphData['graph']['classifications'], vData['type_id'])['name'];
 
-    vData['id'] = newID;
-    vertices.push(vData);
-    this.graphData['graph']['vertices'] = vertices;
+      //vData doesn't need id;
+      //vData MUST be in the form of a vertex object
+      let vertices = this.graphData['graph']['vertices'];
+      let newID = this.HighestID(vertices) + 1;
+
+      vData['id'] = newID;
+      vertices.push(vData);
+      this.graphData['graph']['vertices'] = vertices;
+    } else {
+      console.log("No Type Specified");
+    }
 
   }
   DeleteVertex(vID){
@@ -138,14 +146,28 @@ export class GraphService {
   AddEdge(eData){
     //eData doesn't need ID
     //eData MUST be in the form of an edge object
-    let edges = this.graphData['graph']['edges'];
-    let newID = this.HighestID(edges) + 1;
-    //you don't have to specify id this sets it automatically
-    eData['id'] = newID;
-    //add the edge
-    edges.push(eData);
+    console.log(eData);
+    if (eData['vertex2_id'] != null) {
+      //set vertex1 and vertex2 names
+      eData['vertex2'] = this.FindVertex(this.graphData['graph']['vertices'], eData['vertex2_id'])['name'];
 
-    this.graphData['graph']['edges'] = edges;
+      if (eData['vertex1_id'] != eData['vertex2_id']){
+        eData['name'] = "(" + eData['vertex1'] + ", " + eData['vertex2'] + ")";
+
+        let edges = this.graphData['graph']['edges'];
+        let newID = this.HighestID(edges) + 1;
+        //you don't have to specify id this sets it automatically
+        eData['id'] = newID;
+        //add the edge
+        edges.push(eData);
+
+        this.graphData['graph']['edges'] = edges;
+      } else {
+        console.log('vertex1 and vertex 2 are the same value');
+      }
+    } else {
+      console.log('no second vertex specified');
+    }
 
   }
   DeleteEdge(eID){
@@ -165,13 +187,17 @@ export class GraphService {
   EditEdge(eData){
     //eData needs ID
     //eData MUST be in the form of an edge object
-    let edges = this.graphData['graph']['edges'];
-    let edgeIndex = edges.indexOf(this.FindEdge(edges,eData['id']));
+    if (eData['vertex1_id'] != eData['vertex2_id']){
+      let edges = this.graphData['graph']['edges'];
+      let edgeIndex = edges.indexOf(this.FindEdge(edges,eData['id']));
 
-    if (edgeIndex != -1){
-      edges[edgeIndex] = eData;
+      if (edgeIndex != -1){
+        edges[edgeIndex] = eData;
 
-      this.graphData['graph']['edges'] = edges;
+        this.graphData['graph']['edges'] = edges;
+      }
+    } else {
+      console.log('vertex1 and vertex2 are the same value');
     }
 
   }
