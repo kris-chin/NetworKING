@@ -12,6 +12,7 @@ import { LoginComponent } from './login/login.component';
 import { RouterModule, Routes} from '@angular/router';
 import { GraphComponent } from './graph/graph.component';
 import { GraphFormComponent } from './graph/graph-form/graph-form.component';
+import { GraphWebglComponent } from './graph/graph-webgl/graph-webgl.component';
 
 const appRoutes: Routes = [
   {path: '',
@@ -25,7 +26,8 @@ const appRoutes: Routes = [
     AppComponent,
     LoginComponent,
     GraphComponent,
-    GraphFormComponent
+    GraphFormComponent,
+    GraphWebglComponent
   ],
   imports: [
     BrowserModule,

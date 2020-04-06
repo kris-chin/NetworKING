@@ -12,6 +12,7 @@ import { strictEqual } from 'assert';
 })
 export class GraphComponent implements OnInit {
   graphData;
+  webGL = true; //determines whether to load the graph-webgl component
 
   constructor(
     private user : UserService,
