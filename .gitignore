@@ -52,6 +52,9 @@ kl-names.csv
 __pycache__
 design.psd
 
+#flask
+flask_session
+old_update_code
 
 #project stuff
 _notes

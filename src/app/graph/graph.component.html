@@ -1,0 +1,99 @@
+<div *ngIf="graphData !== undefined">
+    <div *ngIf="graphData.success == true">
+        <p>YO, {{graphData.user.username}}</p>
+
+        <div>
+            <p>Classification Options:</p>
+            <div>
+                <button type ="button" (click) = "toggleDisplay('settings_addClassification')">Add Classification</button>
+            </div>
+            <div>
+                <div id ="settings_addClassification" style="display:none;">
+                    <app-graph-form [formType] = "'classForm'" [action] = "'AddClass'"></app-graph-form>
+                </div>
+            </div>
+        </div>
+        
+        <div id = "classifications">
+            <div *ngFor="let c of graphData.graph.classifications" style="display:inline-block; padding: 4px; border-style:dashed;">
+                <p>{{c.name}}</p>
+                <p>ID: {{c.id}}</p>
+                <div class = "class-options">
+                    <button type = "button" (click) = "toggleDisplay('settings_editClassification_' + c.id)">Edit Class</button>
+                    <button type = "button" (click) = "toggleDisplay('settings_deleteClassification_' + c.id)">Delete Class</button>
+                </div>
+                <div>
+                    <div id = "settings_editClassification_{{c.id}}" style="display:none;">
+                        <app-graph-form [formType] = "'classForm'" [action] = "'EditClass'" [id] = "c.id"></app-graph-form>
+                    </div>
+                    <div id = "settings_deleteClassification_{{c.id}}" style="display:none;">
+                        <app-graph-form [formType] = "'classForm'" [action] = "'DeleteClass'" [id] = "c.id"></app-graph-form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <p>Node Options:</p>
+            <div>
+                <button type = "button" (click) = "toggleDisplay('settings_addNode')">Add Node</button>
+            </div>
+            <div>
+                <div id = "settings_addNode" style="display:none;">
+                    <app-graph-form [formType] = "'vertexForm'" [action] = "'AddVertex'"></app-graph-form>
+                </div>
+            </div>
+        </div>
+
+        <div id = "vertices">
+            <div *ngFor="let v of graphData.graph.vertices" style = "display:inline-block; padding: 4px; border-style: solid;">
+                <p>{{v.name}}</p>
+                <p>ID: {{v.id}}</p>
+                <p>TYPE: {{v.type}}</p>
+                <div class = "vertex-options">
+                    <button type = "button" (click) = "toggleDisplay('settings_addNeighbor_' + v.id)">Add Neighbor</button>
+                    <button type = "button" (click) = "toggleDisplay('settings_editNode_' + v.id)">Edit Node</button>
+                    <button type = "button" (click) = "toggleDisplay('settings_deleteNode_' + v.id)">Delete Node</button>
+                </div>
+                <div>
+                    <div id = "settings_addNeighbor_{{v.id}}" style="display:none;">
+                        <app-graph-form [formType] = "'edgeForm'" [action] = "'AddNeighbor'" [id] = "v.id"></app-graph-form>
+                    </div>
+                    <div id = "settings_editNode_{{v.id}}" style="display:none;">
+                        <app-graph-form [formType] = "'vertexForm'" [action] = "'EditVertex'" [id] = "v.id"></app-graph-form>
+                    </div>
+                    <div id = "settings_deleteNode_{{v.id}}" style="display:none;">
+                        <app-graph-form [formType] = "'vertexForm'" [action] = "'DeleteVertex'" [id] = "v.id"></app-graph-form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id = "edges">
+            <div *ngFor="let e of graphData.graph.edges" style = "display:inline-block; padding: 4px; border-style:double;">
+                <p>{{e.name}}</p>
+                <div class = "edge-options">
+                    <button type = "button" (click) = "toggleDisplay('settings_editEdge_' + e.id)">Edit Edge</button>
+                    <button type = "button" (click) = "toggleDisplay('settings_deleteEdge_' + e.id)">Delete Edge</button>
+                </div>
+                <div>
+                    <div id = "settings_editEdge_{{e.id}}" style="display:none;">
+                        <app-graph-form [formType] = "'edgeForm'" [action] = "'EditEdge'" [id] = "e.id"></app-graph-form>
+                    </div>
+                    <div id = "settings_deleteEdge_{{e.id}}" style="display:none;">
+                        <app-graph-form [formType] = "'edgeForm'" [action] = "'DeleteEdge'" [id] = "e.id"></app-graph-form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button (click)="logout()">Log Out</button>
+    </div>
+    <div *ngIf="graphData.success == false">
+        <p>You are not logged in.</p>
+    </div>
+</div>
+
+<div *ngIf="graphData == undefined">
+    Couldn't connect to Flask API. (Server might be down?)
+</div>

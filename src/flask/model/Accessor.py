@@ -14,10 +14,11 @@ class Accessor:
         #Create "nodes" table
         self.c.execute('''
             CREATE TABLE IF NOT EXISTS nodes
-                (id INTEGER NOT NULL PRIMARY KEY,
+                (id INTEGER NOT NULL,
                 userid INTEGER,
                 name TEXT,
                 classification TEXT,
+                classification_id INTEGER,
                 health INTEGER,
                 shape TEXT,
                 notes TEXT
@@ -26,10 +27,12 @@ class Accessor:
         #Create "edges" table
         self.c.execute('''
             CREATE TABLE IF NOT EXISTS edges
-                (id INTEGER NOT NULL PRIMARY KEY,
+                (id INTEGER NOT NULL,
                 userid INTEGER,
                 vertex1 TEXT,
+                vertex1_id INTEGER,
                 vertex2 TEXT,
+                vertex2_id INTEGER,
                 color TEXT,
                 size INTEGER,
                 style TEXT)
@@ -37,7 +40,7 @@ class Accessor:
         #Create "classifications" table
         self.c.execute('''
             CREATE TABLE IF NOT EXISTS classifications
-                (id INTEGER NOT NULL PRIMARY KEY,
+                (id INTEGER NOT NULL,
                 userid INTEGER,
                 name TEXT,
                 color TEXT,
@@ -46,7 +49,7 @@ class Accessor:
         #Create a "userbase" table (be careful!!!)
         self.c.execute('''
             CREATE TABLE IF NOT EXISTS userbase
-            (id INTEGER NOT NULL PRIMARY KEY,
+            (id INTEGER NOT NULL,
             userid INTEGER,
             email TEXT,
             username TEXT,
@@ -85,6 +88,13 @@ class Accessor:
 
     def SetClassificationsData(self,graph,userid):
         #update the classifcation data for the given userid based on the inputted graph object
+        #delete any existing clases incase some were deleted
+        self.c.execute('''
+            DELETE from classifications
+            WHERE (userid = ?)
+        ''', (userid, )
+        )
+        
         for cl in graph.classifications:
             #Check if classification exists
             self.c.execute('''
@@ -105,11 +115,12 @@ class Accessor:
             else:
                 #if classification doesn't exist in table
                 self.c.execute('''
-                    INSERT INTO classifications (userid, name, color, count)
-                    VALUES (?, ?, ?, ?)
-                    ''', (userid, cl.name, cl.color, cl.count, )
+                    INSERT INTO classifications (id, userid, name, color, count)
+                    VALUES (?, ?, ?, ?, ?)
+                    ''', (cl.id, userid, cl.name, cl.color, cl.count, )
                 )
         self.conn.commit()
+        return True
 
     def GetEdgesData(self,userid):
         #Returns a list of Row data for Edges (Needs cleaning)
@@ -125,6 +136,13 @@ class Accessor:
 
     def SetEdgesData(self,graph,userid):
         #update the edges data for the given userid based on the inputted graph object
+        #delete any existing edges incase some were deleted
+        self.c.execute('''
+            DELETE from edges
+            WHERE (userid = ?)
+        ''', (userid, )
+        )
+        
         for edge in graph.edges:
             #Check if edge exists
             self.c.execute('''
@@ -137,19 +155,20 @@ class Accessor:
                 #if edge exists in table
                 self.c.execute('''
                     UPDATE edges
-                    SET vertex1 = ?, vertex2 = ?, color = ?, size = ?, style = ?
+                    SET vertex1 = ?, vertex1_id = ?, vertex2 = ?, vertex2_id = ?, color = ?, size = ?, style = ?
                     WHERE (id = ? AND userid = ?)
-                    ''', (edge.vertices[0].name, edge.vertices[1].name, edge.color, edge.size, edge.style, edge.id, userid,  )
+                    ''', (edge.vertices[0].name, edge.vertices[0].id, edge.vertices[1].name, edge.vertices[1].id, edge.color, edge.size, edge.style, edge.id, userid,  )
                 )
 
             else:
                 #if edges doesn't exist in table
                 self.c.execute('''
-                    INSERT INTO edges (userid, vertex1, vertex2, color, size, style)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    ''', (userid, edge.vertices[0].name, edge.vertices[1].name, edge.color, edge.size, edge.style)
+                    INSERT INTO edges (id, userid, vertex1, vertex1_id, vertex2, vertex2_id, color, size, style)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', (edge.id, userid, edge.vertices[0].name, edge.vertices[0].id, edge.vertices[1].name,  edge.vertices[1].id, edge.color, edge.size, edge.style)
                 )
         self.conn.commit()
+        return True
 
     def GetVerticesData(self,userid):
         #Returns a list of Row data for Vertices (Needs cleaning)
@@ -166,6 +185,14 @@ class Accessor:
 
     def SetVerticesData(self,graph,userid):
         #update the vertices data for the given userid based on the inputted graph object
+
+        #clear the original vertices first (in case there are deleted vertices)
+        self.c.execute('''
+            DELETE FROM nodes
+            WHERE (userid = ?)
+            ''', (userid, )
+        )
+        
         for v in graph.vertices:
             #Check if vertex exists
             self.c.execute('''
@@ -178,19 +205,20 @@ class Accessor:
                 #if vertex exists in table
                 self.c.execute('''
                     UPDATE nodes
-                    SET name = ?, classification = ?, health = ?, shape = ?, notes = ?
+                    SET name = ?, classification = ?, classification_id = ?, health = ?, shape = ?, notes = ?
                     WHERE (id = ? AND userid = ?)
-                    ''', (v.name, v.type.name, v.health, v.shape, v.notes, v.id, userid, )
+                    ''', (v.name, v.type.name, v.type.id, v.health, v.shape, v.notes, v.id, userid, )
                 )
 
             else:
                 #if vertex doesn't exist in table
                 self.c.execute('''
-                    INSERT INTO nodes (userid, name, classification, health, shape, notes)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    ''', (userid, v.name, v.type.name, v.health, v.shape, v.notes, )
+                    INSERT INTO nodes (id, userid, name, classification, classification_id, health, shape, notes)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', (v.id, userid, v.name, v.type.name, v.type.id, v.health, v.shape, v.notes, )
                 )
         self.conn.commit()
+        return True
 
     def GetUserData(self,userid):
         #Returns a list of Row data for User Settings (Needs cleaning)
@@ -237,6 +265,7 @@ class Accessor:
             print("user n/a")
             #we can't update settings, since the user doesn't exist. we need the user to sign in
         self.conn.commit()
+        return True
 
     #finds a userid using a provided username and pass (extremely unsecure. remember to change)
     def FindUserID(self,user,password):
@@ -256,10 +285,15 @@ class Accessor:
             return None
 
     def SetAllData(self,graph,userid):
-        self.SetClassificationsData(graph,userid)
-        self.SetEdgesData(graph,userid)
-        self.SetVerticesData(graph,userid)
+        #returns true if successfully set database data
+        classificationCheck = self.SetClassificationsData(graph,userid)
+        edgeCheck = self.SetEdgesData(graph,userid)
+        vertexCheck = self.SetVerticesData(graph,userid)
         #self.SetUserData(graph,userid,settings_file)
+        if (classificationCheck == True and edgeCheck == True and vertexCheck == True):
+            return True
+        else:
+            return False
 
     def GenerateUserID(self):
         self.c.execute('''
