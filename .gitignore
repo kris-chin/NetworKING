@@ -56,6 +56,9 @@ design.psd
 flask_session
 old_update_code
 
+#webgl
+psd
+
 #project stuff
 _notes
 /prototype

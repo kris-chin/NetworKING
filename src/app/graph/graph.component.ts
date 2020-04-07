@@ -59,6 +59,8 @@ export class GraphComponent implements OnInit {
 
               this.graphData = this.graphService.graphData;
 
+              //TODO: test for webGL support
+
             } else {
               console.warn("Invalid Login Data.");
               //redirect
