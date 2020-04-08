@@ -11,7 +11,7 @@ import { MaxLengthValidator } from '@angular/forms';
 })
 
 export class GraphWebglComponent implements OnInit {
-  app; loader; sprites; //used in PIXI
+  app; loader; ticker; objects; //used in PIXI
   graphData;
 
   constructor(
@@ -25,45 +25,115 @@ export class GraphWebglComponent implements OnInit {
 
     //initialize webGL
     this.app = new PIXI.Application({
-      width: 256,
-      height: 256,
+      width: 900,
+      height: 900,
       antialias: true,
       transparent : false,
       resolution: 1,
     });
+    let renderer = this.app.renderer;
 
-    this.app.renderer.autoResize = true;
-
+    renderer.autoResize = true;
+    
     //add to our component
     document.getElementById("display").appendChild(this.app.view);
 
     //load all images and run setup() when done
     this.loader = new PIXI.Loader();
-    this.sprites = {};
+    this.ticker = PIXI.Ticker.shared;
+    this.ticker.autoStart = false;
+
+    this.objects = { //contains all objects
+      vertices : {},
+      edgeRenderer : new PIXI.Graphics()
+    };
     //load all images. stack .add()s for more images
     this.loader.add('vertex', "assets/images/png/Vertex.png");
 
     //runs after all images are loaded
     this.loader.load(
         (loader, resources) => {
-          //add a vertex for every vertex in "vertices"
+          //add a vertex object for every vertex in "vertices"
           for (let vertex of this.graphData.graph.vertices){
-            this.sprites['vertex_' + vertex.id] = new PIXI.Sprite(resources.vertex.texture);
-            this.app.stage.addChild(this.sprites['vertex_' + vertex.id]);
-            let v = this.sprites['vertex_' + vertex.id];
-
-            v.width *= 0.5;
-            v.height *= 0.5;
-
+            //create a new Sprite with the loader's vertex texture
+            this.objects['vertices'][vertex.id] = new PIXI.Sprite(resources.vertex.texture);
+            //add it to the stage
+            this.app.stage.addChild(this.objects['vertices'][vertex.id]);
+            //stuff for each individual vertex
+            let v = this.objects['vertices'][vertex.id];
             v.x = Math.floor(Math.random() * this.app.renderer.width - 10);
             v.y = Math.floor(Math.random() * this.app.renderer.height - 10);
-
             v.tint *= Math.random();
+
+            v.interactive = true //allows for interaction events
+            v.buttonMode = true //cursor appears when you put the mouse over it
+            v.anchor.set(0.5); //set the anchor point
+
+            //setup onclickevents for the vertex
+            v
+              .on('pointerdown', onDragStart)
+              .on('pointerup', onDragEnd)
+              .on('pointerupoutside', onDragEnd)
+              .on('pointermove', onDragMove);
+
+            //definitions for actual events
+            function onDragStart(event){
+              //store a reference the the specific data when using multitouch
+              this.data = event.data;
+              this.dragging = true;
+            }
+            function onDragEnd(){
+              this.dragging = false;
+              this.data = null; //set the multitouch data to null
+            }
+            function onDragMove(){
+              if (this.dragging){
+                const newPosition = this.data.getLocalPosition(this.parent); //get the position of the mouse
+                this.x = newPosition.x;
+                this.y = newPosition.y;
+
+              }
+            }
+
+            //create a child Text Object of the vertex
+            let t = new PIXI.Text(vertex.name,{
+              fontFamily : 'Arial',
+              fontSize : 12,
+              fill : 0xFFFFFF
+            });
+            v.addChild(t);
+            //set the text offset properly
+            t.setTransform(-(t.width/2) + (v.width/2), v.height);
           }
-          console.log(this.sprites);
+
+          //draw edges between nodes, they ain't even objects, just one object drawing all edges
+          let e = this.objects['edgeRenderer'];
+          e.beginFill(0xFFFFFF);
+          e.lineStyle(4,0xFFFFfF);
+          for (let edge of this.graphData.graph.edges){ 
+            let v1 = this.objects['vertices'][edge.vertex1_id];
+            let v2 = this.objects['vertices'][edge.vertex2_id];
+            
+            console.log(e);
+            //draw edge
+            e.lineTo(v2.x, v2.y);
+            
+          }
+          e.endFill();
+          this.ticker.start();
+
+          console.log(this.objects);
+          console.log(this.app.stage);
         }
       );
-
+    
+    //called on very tick
+    this.ticker.add(
+      (time) => {
+        this.ticker.update(time);
+        renderer.render(this.app.stage);
+      }
+    );
   }
 
 }
