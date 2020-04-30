@@ -30,6 +30,7 @@ export class GraphWebglComponent implements OnInit {
       antialias: true,
       transparent : false,
       resolution: 1,
+      sharedTicker: true,
     });
     let renderer = this.app.renderer;
 
@@ -42,6 +43,7 @@ export class GraphWebglComponent implements OnInit {
     this.loader = new PIXI.Loader();
     this.ticker = PIXI.Ticker.shared;
     this.ticker.autoStart = false;
+    this.ticker.stop();
 
     this.objects = { //contains all objects
       vertices : {},
@@ -89,6 +91,7 @@ export class GraphWebglComponent implements OnInit {
             function onDragMove(){
               if (this.dragging){
                 const newPosition = this.data.getLocalPosition(this.parent); //get the position of the mouse
+                //update object's position with the new x and y
                 this.x = newPosition.x;
                 this.y = newPosition.y;
 
@@ -103,37 +106,48 @@ export class GraphWebglComponent implements OnInit {
             });
             v.addChild(t);
             //set the text offset properly
-            t.setTransform(-(t.width/2) + (v.width/2), v.height);
-          }
+            t.setTransform(-(t.width/2) + (v.width/16), v.height/2);
+
+          } //end of vertex code
 
           //draw edges between nodes, they ain't even objects, just one object drawing all edges
-          let e = this.objects['edgeRenderer'];
-          e.beginFill(0xFFFFFF);
-          e.lineStyle(4,0xFFFFfF);
-          for (let edge of this.graphData.graph.edges){ 
-            let v1 = this.objects['vertices'][edge.vertex1_id];
-            let v2 = this.objects['vertices'][edge.vertex2_id];
-            
-            console.log(e);
-            //draw edge
-            e.lineTo(v2.x, v2.y);
-            
-          }
-          e.endFill();
-          this.ticker.start();
-
+          let e = this.objects['edgeRenderer']; 
+          this.app.stage.addChild(e); //add the edgeRenderer to the screen
+          
           console.log(this.objects);
           console.log(this.app.stage);
-        }
+
+          this.ticker.start(); //actually start the ticker rendering
+        } //end of loader code
       );
+
     
-    //called on very tick
-    this.ticker.add(
+    this.ticker.add( //everything in here is called every tick
       (time) => {
+        //edge-redraw code
+        let e = this.objects['edgeRenderer'];
+        e.clear();
+        this.app.renderer.render(this.app.stage); //update to clear the edges
+        for (let edge of this.graphData.graph.edges){  //go through every edge for every node
+          let v1 = this.objects['vertices'][edge.vertex1_id];
+          let v2 = this.objects['vertices'][edge.vertex2_id];
+
+          //console.log(e);
+          //draw edges like a pen, lifting at every node.
+          e.lineStyle(2,0xFFFFFF);
+          e.beginFill(0xFFFFFF);
+          e.moveTo(v1.x,v1.y);
+          e.lineTo(v2.x,v2.y);
+          e.endFill();
+        
+        }
+        this.app.renderer.render(this.app.stage); //call a second render for the edges
+        //end of edge-redraw code
+
         this.ticker.update(time);
-        renderer.render(this.app.stage);
       }
     );
+    
   }
 
 }
